@@ -1,6 +1,7 @@
 # GC Letters
 A project to create an npm package that makes it easy for Government of Canada departments to export FIP compliant letters with ease. 
 
+Goal is to develop this project to be published at npmjs.org and to make the source code open source.
 
 ## Components
 GC Letters provides 3 components for your use in generating FIP Standards compliant letters.
