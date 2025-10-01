@@ -46,6 +46,7 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
     const effectiveParagraphSpacing =
       paragraphSpacing || context.paragraphSpacing;
     const effectiveFontFace = fontFace || context.fontFace;
+    const effectiveTextAlign = textAlign || context.textAlign;
 
     // Calculate margins
     const xMargin = convertToMm(context.xMargin);
@@ -82,6 +83,7 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
       fontSizeH3: convertToMm(effectiveFontSizeH3),
       lineSpacing: convertToMm(effectiveLineSpacing),
       paragraphSpacing: convertToMm(effectiveParagraphSpacing),
+      textAlign: effectiveTextAlign,
     };
 
     // Render each token

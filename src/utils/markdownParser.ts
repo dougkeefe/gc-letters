@@ -16,6 +16,7 @@ export interface RenderContext {
   fontSizeH3: number;
   lineSpacing: number;
   paragraphSpacing: number;
+  textAlign: 'left' | 'right' | 'center' | 'full';
 }
 
 /**
@@ -53,14 +54,49 @@ export const renderTextLine = (
 };
 
 /**
+ * Calculate X position based on alignment
+ */
+const getAlignedXPosition = (
+  pdf: jsPDF,
+  text: string,
+  x: number,
+  maxWidth: number,
+  align: 'left' | 'right' | 'center' | 'full'
+): number => {
+  if (align === 'left' || align === 'full') {
+    return x;
+  }
+
+  const textWidth = pdf.getTextWidth(text);
+
+  if (align === 'center') {
+    return x + (maxWidth - textWidth) / 2;
+  }
+
+  if (align === 'right') {
+    return x + maxWidth - textWidth;
+  }
+
+  return x;
+};
+
+/**
  * Render a paragraph
  */
 export const renderParagraph = (
   context: RenderContext,
   text: string
 ): number => {
-  const { pdf, x, y, maxWidth, fontSizeNormal, lineSpacing, paragraphSpacing } =
-    context;
+  const {
+    pdf,
+    x,
+    y,
+    maxWidth,
+    fontSizeNormal,
+    lineSpacing,
+    paragraphSpacing,
+    textAlign,
+  } = context;
 
   pdf.setFontSize(fontSizeNormal);
   pdf.setFont(pdf.getFont().fontName, 'normal');
@@ -69,7 +105,27 @@ export const renderParagraph = (
   const lineHeightMm = lineSpacing;
 
   lines.forEach((line: string, index: number) => {
-    pdf.text(line, x, y + index * lineHeightMm);
+    const xPos = getAlignedXPosition(pdf, line, x, maxWidth, textAlign);
+
+    if (textAlign === 'full' && index < lines.length - 1) {
+      // Justify text (except last line)
+      const words = line.split(' ');
+      if (words.length > 1) {
+        const totalTextWidth = words.reduce(
+          (sum, word) => sum + pdf.getTextWidth(word),
+          0
+        );
+        const spaceWidth = (maxWidth - totalTextWidth) / (words.length - 1);
+        let currentX = x;
+        words.forEach((word) => {
+          pdf.text(word, currentX, y + index * lineHeightMm);
+          currentX += pdf.getTextWidth(word) + spaceWidth;
+        });
+        return;
+      }
+    }
+
+    pdf.text(line, xPos, y + index * lineHeightMm);
   });
 
   return y + lines.length * lineHeightMm + paragraphSpacing;
@@ -83,8 +139,17 @@ export const renderHeading = (
   text: string,
   level: number
 ): number => {
-  const { pdf, x, y, maxWidth, fontSizeH1, fontSizeH2, fontSizeH3, paragraphSpacing } =
-    context;
+  const {
+    pdf,
+    x,
+    y,
+    maxWidth,
+    fontSizeH1,
+    fontSizeH2,
+    fontSizeH3,
+    paragraphSpacing,
+    textAlign,
+  } = context;
 
   let fontSize: number;
   switch (level) {
@@ -108,7 +173,8 @@ export const renderHeading = (
   const lineHeight = pdf.getLineHeight() / pdf.internal.scaleFactor;
 
   lines.forEach((line: string, index: number) => {
-    pdf.text(line, x, y + index * lineHeight);
+    const xPos = getAlignedXPosition(pdf, line, x, maxWidth, textAlign);
+    pdf.text(line, xPos, y + index * lineHeight);
   });
 
   return y + lines.length * lineHeight + paragraphSpacing;

@@ -157,19 +157,55 @@ src/
 - ✅ `npm run build` - Rollup build completed (3.7s)
 - ✅ Updated rollup.config.js with `inlineDynamicImports: true` for multi-module support
 
-## Phase 3: Typography & Styling
+## Phase 3: Typography & Styling ✅ COMPLETED
 
-### 3.1 Document-Level Typography
-- [ ] Implement font-face loading (Helvetica Light default)
-- [ ] Set up text size hierarchy (normal, h1, h2, h3)
-- [ ] Implement text alignment options (left, right, center, full)
-- [ ] Configure paragraph spacing
-- [ ] Configure line spacing
+### 3.1 Document-Level Typography ✅
+- [x] Implement font-face loading (Helvetica default)
+  - Font loading implemented in `GcLetter.tsx` via `pdf.setFont(fontFace)`
+  - Default font set to Helvetica (jsPDF built-in font)
+  - Font applied on PDF initialization
+- [x] Set up text size hierarchy (normal, h1, h2, h3)
+  - All text sizes configurable via props: `textSizeNormal`, `textSizeHeading1`, `textSizeHeading2`, `textSizeHeading3`
+  - Defaults: 11pt (normal), 16pt (h1), 14pt (h2), 12pt (h3)
+  - Implemented in rendering functions in `src/utils/markdownParser.ts`
+- [x] Implement text alignment options (left, right, center, full)
+  - Created `getAlignedXPosition()` helper function in `src/utils/markdownParser.ts`
+  - Supports left, right, center, and full (justified) alignment
+  - Full justification implemented with word spacing calculation
+  - Applied to both paragraphs and headings
+- [x] Configure paragraph spacing
+  - Configurable via `paragraphSpacing` prop (default: 11mm)
+  - Applied after each paragraph and heading in rendering
+  - Passed through context to all child components
+- [x] Configure line spacing
+  - Configurable via `lineSpacing` prop (default: 7mm)
+  - Applied within paragraphs and lists
+  - Used for calculating vertical spacing between lines
 
-### 3.2 Block-Level Typography Overrides
-- [ ] Allow LetterBlock to override document-level settings
-- [ ] Implement fallback to document-level defaults
-- [ ] Test typography inheritance and override logic
+### 3.2 Block-Level Typography Overrides ✅
+- [x] Allow LetterBlock to override document-level settings
+  - All typography props available at LetterBlock level
+  - Includes: `fontFace`, `textSize*`, `textAlign`, `paragraphSpacing`, `lineSpacing`
+  - Implemented in `src/components/LetterBlock.tsx` with effective* variable pattern
+- [x] Implement fallback to document-level defaults
+  - Fallback logic: `blockSetting || documentSetting`
+  - Implemented for all typography properties
+  - Document-level settings retrieved from LetterContext
+- [x] Test typography inheritance and override logic
+  - Created test suite in `src/utils/__tests__/typography.test.ts`
+  - Tests cover font hierarchy, alignment options, and override logic
+  - All tests passing ✅
+
+**Enhanced Files:**
+- ✅ `src/utils/markdownParser.ts` - Added `textAlign` to RenderContext, implemented alignment for paragraphs and headings
+- ✅ `src/components/LetterBlock.tsx` - Added textAlign fallback logic
+- ✅ `src/utils/__tests__/typography.test.ts` - Created comprehensive tests
+
+**Build Verification:**
+- ✅ `npm run typecheck` - All TypeScript compilation successful
+- ✅ `npm run lint` - ESLint passing with no errors
+- ✅ `npm run build` - Rollup build completed (3.7s)
+- ✅ `npm test` - 3 tests passing
 
 ## Phase 4: Page Management
 
