@@ -2,40 +2,56 @@
  * Validation utilities for component props and inputs
  */
 
-export const validateFileName = (fileName: string): boolean => {
+export const validateFileName = (fileName: string): void => {
   if (!fileName || fileName.trim() === '') {
     throw new Error('fileName is required');
   }
-  return true;
 };
 
-export const validateDeptSignature = (deptSignature: string): boolean => {
+export const validateDeptSignature = (deptSignature: string): void => {
   if (!deptSignature || deptSignature.trim() === '') {
     throw new Error('deptSignature is required');
   }
-  // TODO: Validate URL format
-  return true;
+  // Basic URL validation
+  try {
+    new URL(deptSignature);
+  } catch {
+    // Could be a relative path or data URL, which are also valid
+    if (
+      !deptSignature.startsWith('/') &&
+      !deptSignature.startsWith('./') &&
+      !deptSignature.startsWith('data:')
+    ) {
+      console.warn(
+        'deptSignature should be a valid URL, relative path, or data URL'
+      );
+    }
+  }
 };
 
-export const validatePageNumberFormat = (format: string): boolean => {
+export const validatePageNumberFormat = (format: string): void => {
   if (!format.includes('#')) {
     throw new Error(
       'pageNumberFormat must contain # as placeholder for page number'
     );
   }
-  return true;
 };
 
-export const validateNextPageFormat = (format: string): boolean => {
+export const validateNextPageFormat = (format: string): void => {
   if (!format.includes('#')) {
     throw new Error(
       'nextPageNumberFormat must contain # as placeholder for page number'
     );
   }
-  return true;
 };
 
-// TODO: Implement additional validators
-// - Margin value validation
-// - Unit validation
-// - Component nesting validation
+export const validateUnitValue = (value: string): void => {
+  const validUnits = ['mm', 'pt', 'in', 'px'];
+  const hasValidUnit = validUnits.some((unit) => value.endsWith(unit));
+
+  if (!hasValidUnit && isNaN(parseFloat(value))) {
+    throw new Error(
+      `Invalid unit value: ${value}. Must be a number followed by one of: ${validUnits.join(', ')}`
+    );
+  }
+};

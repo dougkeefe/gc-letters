@@ -12,12 +12,14 @@ export default {
       format: 'cjs',
       sourcemap: true,
       exports: 'named',
+      inlineDynamicImports: true,
     },
     {
       file: 'dist/index.esm.js',
       format: 'esm',
       sourcemap: true,
       exports: 'named',
+      inlineDynamicImports: true,
     },
   ],
   plugins: [
