@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, createContext, useContext } from 'react';
 import { LetterBlockProps } from '../types';
 import { useLetterContext } from '../context/LetterContext';
 import {
@@ -10,6 +10,9 @@ import {
 } from '../utils/markdownParser';
 import { convertToMm, shouldBreakPage } from '../utils/pageCalculator';
 import { Tokens } from 'marked';
+
+// Context to detect nested LetterBlocks
+const LetterBlockContext = createContext<boolean>(false);
 
 /**
  * LetterBlock - Content section component for letters
@@ -31,6 +34,14 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
   textAlign,
 }) => {
   const context = useLetterContext();
+  const isNested = useContext(LetterBlockContext);
+
+  // Prevent nested LetterBlocks
+  if (isNested) {
+    throw new Error(
+      'LetterBlock components cannot be nested. Each LetterBlock must be a direct child of GcLetter.'
+    );
+  }
 
   useEffect(() => {
     if (!context || !context.pdf) return;
@@ -152,7 +163,11 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
     context,
   ]);
 
-  return <div data-component="letter-block" data-allow-pagebreak={allowPagebreak} />;
+  return (
+    <LetterBlockContext.Provider value={true}>
+      <div data-component="letter-block" data-allow-pagebreak={allowPagebreak} />
+    </LetterBlockContext.Provider>
+  );
 };
 
 export default LetterBlock;

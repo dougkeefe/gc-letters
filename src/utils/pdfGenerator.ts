@@ -50,8 +50,14 @@ export const loadImage = (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
+
     img.onload = () => resolve(img);
-    img.onerror = reject;
+
+    img.onerror = () => {
+      console.error(`Failed to load image from: ${url}`);
+      reject(new Error(`Failed to load department signature image from ${url}. Please check the URL and ensure the image is accessible.`));
+    };
+
     img.src = url;
   });
 };
@@ -64,9 +70,23 @@ export const addImageToPDF = (
   width: number,
   height: number
 ): Promise<void> => {
-  return loadImage(imageUrl).then((img) => {
-    pdf.addImage(img, 'PNG', x, y, width, height);
-  });
+  return loadImage(imageUrl)
+    .then((img) => {
+      try {
+        pdf.addImage(img, 'PNG', x, y, width, height);
+      } catch (error) {
+        console.error('Error adding image to PDF:', error);
+        throw new Error('Failed to add image to PDF. The image format may not be supported.');
+      }
+    })
+    .catch((error) => {
+      // If it's already our custom error, rethrow it
+      if (error.message.includes('Failed to load')) {
+        throw error;
+      }
+      // Otherwise wrap it
+      throw new Error(`Image loading failed: ${error.message}`);
+    });
 };
 
 /**
