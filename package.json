@@ -2,6 +2,7 @@
   "name": "gc-letters",
   "version": "1.0.0",
   "description": "An npm package for Government of Canada departments to generate Federal Identity Program (FIP) compliant letters as PDFs",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
