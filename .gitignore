@@ -41,6 +41,11 @@ tmp/
 temp/
 .cache/
 
+# Test application
+test-app/node_modules/
+test-app/dist/
+test-app/*.tgz
+
 # Documentation
 docs/
 

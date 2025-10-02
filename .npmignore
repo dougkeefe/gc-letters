@@ -12,6 +12,7 @@ setupTests.ts
 
 # Documentation (keep in npm, but exclude development docs)
 docs/implementation-plan.md
+docs/ACTION_STEPS.md
 CLAUDE.md
 
 # Development files
@@ -44,6 +45,9 @@ coverage/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Test app (exclude from npm package)
+test-app/
 
 # Examples (keep in npm for reference)
 # examples/ - kept for users
