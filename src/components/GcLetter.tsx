@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import { GcLetterProps } from '../types';
 import { LetterProvider } from '../context/LetterContext';
-import { createPDF, getPageDimensions } from '../utils/pdfGenerator';
+import { createPDF, getPageDimensions, downloadPDF } from '../utils/pdfGenerator';
 import { convertToMm } from '../utils/pageCalculator';
 import {
   validateFileName,
@@ -21,6 +21,7 @@ const GcLetter: React.FC<GcLetterProps> = ({
   fileName,
   deptSignature,
   children,
+  onReady,
   pageType = 'letter',
   xMargin = '38mm',
   yMargin = '13mm',
@@ -75,6 +76,14 @@ const GcLetter: React.FC<GcLetterProps> = ({
     // Set default font
     pdf.setFont(fontFace);
     pdf.setFontSize(convertToMm(textSizeNormal));
+
+    // Provide download function to parent via callback
+    if (onReady) {
+      const download = () => {
+        downloadPDF(pdf, fileName);
+      };
+      onReady(download);
+    }
   }, [
     fileName,
     deptSignature,
@@ -86,6 +95,7 @@ const GcLetter: React.FC<GcLetterProps> = ({
     pageNumberFormat,
     showNextPage,
     nextPageNumberFormat,
+    onReady,
   ]);
 
   const dimensions = getPageDimensions(pageType);

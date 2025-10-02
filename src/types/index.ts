@@ -12,6 +12,9 @@ export interface GcLetterProps {
   deptSignature: string;
   children: React.ReactNode;
 
+  // Optional callbacks
+  onReady?: (downloadFn: () => void) => void;
+
   // Layout
   pageType?: PageType;
   xMargin?: string;

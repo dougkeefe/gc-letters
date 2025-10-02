@@ -28,6 +28,22 @@ export const createPDF = (pageType: PageType): jsPDF => {
 };
 
 /**
+ * Download PDF to browser
+ */
+export const downloadPDF = (pdf: jsPDF, fileName: string): void => {
+  try {
+    // Ensure fileName has .pdf extension
+    const pdfFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+
+    // Trigger download
+    pdf.save(pdfFileName);
+  } catch (error) {
+    console.error('Error downloading PDF:', error);
+    throw new Error('Failed to download PDF. Please try again.');
+  }
+};
+
+/**
  * Load and render an image (department signature) to the PDF
  */
 export const loadImage = (url: string): Promise<HTMLImageElement> => {
