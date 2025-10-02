@@ -40,12 +40,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/gc-letters.git"
+    "url": "https://github.com/dougkeefe/gc-letters.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/gc-letters/issues"
+    "url": "https://github.com/dougkeefe/gc-letters/issues"
   },
-  "homepage": "https://github.com/yourusername/gc-letters#readme",
+  "homepage": "https://github.com/dougkeefe/gc-letters#readme",
   "peerDependencies": {
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
