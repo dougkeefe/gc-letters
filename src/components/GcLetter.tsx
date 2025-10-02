@@ -1,15 +1,20 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import { GcLetterProps } from '../types';
-import { LetterProvider } from '../context/LetterContext';
 import { createPDF, getPageDimensions, downloadPDF } from '../utils/pdfGenerator';
-import { convertToMm } from '../utils/pageCalculator';
+import { convertToMm, shouldBreakPage } from '../utils/pageCalculator';
 import {
   validateFileName,
   validateDeptSignature,
   validatePageNumberFormat,
   validateNextPageFormat,
 } from '../utils/validators';
+import {
+  parseMarkdown,
+  renderParagraph,
+  renderHeading,
+  renderListItem,
+} from '../utils/markdownParser';
 
 /**
  * GcLetter - Main wrapper component for FIP-compliant letters
@@ -47,11 +52,14 @@ const GcLetter: React.FC<GcLetterProps> = ({
   letterNumberLocation = 'footer',
   letterNumberAlignment = 'right',
 }) => {
-  const [currentY, setCurrentY] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
   const pdfRef = useRef<jsPDF | null>(null);
+  const hasRendered = useRef(false);
 
+  // Render children to PDF sequentially
   useEffect(() => {
+    // Only render once
+    if (hasRendered.current) return;
+    hasRendered.current = true;
     // Validate required props
     validateFileName(fileName);
     validateDeptSignature(deptSignature);
@@ -69,13 +77,30 @@ const GcLetter: React.FC<GcLetterProps> = ({
     pdfRef.current = pdf;
 
     const topMargin = convertToMm(yMargin);
-
-    // Set initial Y position (below top margin and any header content)
-    setCurrentY(topMargin);
+    let y = topMargin;
 
     // Set default font
     pdf.setFont(fontFace);
     pdf.setFontSize(convertToMm(textSizeNormal));
+
+    // Render initial page elements
+    renderPageElements(pdf, 1);
+
+    // Process children sequentially
+    React.Children.forEach(children, (child) => {
+      if (!React.isValidElement(child)) return;
+
+      // Handle LetterBlock components
+      if (child.type && (child.type as any).name === 'LetterBlock') {
+        const props = child.props as any;
+        // Render LetterBlock content directly here
+        y = renderLetterBlockContent(pdf, y, props);
+      }
+      // Handle SeparatorLine components
+      else if (child.type && (child.type as any).name === 'SeparatorLine') {
+        y = renderSeparatorLineContent(pdf, y);
+      }
+    });
 
     // Provide download function to parent via callback
     if (onReady) {
@@ -84,19 +109,7 @@ const GcLetter: React.FC<GcLetterProps> = ({
       };
       onReady(download);
     }
-  }, [
-    fileName,
-    deptSignature,
-    pageType,
-    yMargin,
-    fontFace,
-    textSizeNormal,
-    showPageNumbers,
-    pageNumberFormat,
-    showNextPage,
-    nextPageNumberFormat,
-    onReady,
-  ]);
+  }); // No dependencies - runs on every render, but hasRendered prevents re-execution
 
   const dimensions = getPageDimensions(pageType);
   const xMarginMm = convertToMm(xMargin);
@@ -201,60 +214,138 @@ const GcLetter: React.FC<GcLetterProps> = ({
   );
 
   // Function to add a new page and render headers/footers
-  const addNewPage = React.useCallback(() => {
-    const pdf = pdfRef.current;
-    if (!pdf) return;
-
+  const addNewPage = (pdf: jsPDF, pageNum: number): number => {
     pdf.addPage();
-    const newPageNum = currentPage + 1;
-    setCurrentPage(newPageNum);
-    setCurrentY(yMarginMm);
-
-    // Render headers/footers for the new page
-    renderPageElements(pdf, newPageNum);
-  }, [currentPage, yMarginMm, renderPageElements]);
-
-  // Render initial page elements
-  useEffect(() => {
-    if (pdfRef.current) {
-      renderPageElements(pdfRef.current, currentPage);
-    }
-  }, [currentPage, renderPageElements]);
-
-  // Only render if PDF is initialized
-  if (!pdfRef.current) {
-    return null;
-  }
-
-  const contextValue = {
-    pdf: pdfRef.current,
-    currentY,
-    setCurrentY,
-    pageHeight: dimensions.height,
-    pageWidth: dimensions.width,
-    currentPage,
-    setCurrentPage,
-    addNewPage,
-    pageType,
-    xMargin: xMarginMm.toString() + 'mm',
-    yMargin: yMarginMm.toString() + 'mm',
-    fontFace,
-    textSizeNormal,
-    textSizeHeading1,
-    textSizeHeading2,
-    textSizeHeading3,
-    textAlign,
-    paragraphSpacing,
-    lineSpacing,
+    renderPageElements(pdf, pageNum + 1);
+    return yMarginMm; // Return new Y position
   };
 
-  // Render children in a hidden container for measurement
-  // The actual PDF rendering will happen through the context
-  return (
-    <div style={{ display: 'none' }} data-component="gc-letter">
-      <LetterProvider value={contextValue}>{children}</LetterProvider>
-    </div>
-  );
+  // Helper function to render LetterBlock content
+  const renderLetterBlockContent = (pdf: jsPDF, startY: number, props: any): number => {
+    const {
+      content,
+      children: blockChildren,
+      allowPagebreak = true,
+      paragraphSpacing: blockParagraphSpacing,
+      lineSpacing: blockLineSpacing,
+      fontFace: blockFontFace,
+      textSizeNormal: blockTextSizeNormal,
+      textSizeHeading1: blockTextSizeHeading1,
+      textSizeHeading2: blockTextSizeHeading2,
+      textSizeHeading3: blockTextSizeHeading3,
+      textAlign: blockTextAlign,
+    } = props;
+
+    // Use imported utilities (renamed convertToMm to avoid shadowing)
+    const toMm = convertToMm;
+
+    // Get typography settings (use block-level overrides or fall back to document-level)
+    const effectiveFontSize = blockTextSizeNormal || textSizeNormal;
+    const effectiveFontSizeH1 = blockTextSizeHeading1 || textSizeHeading1;
+    const effectiveFontSizeH2 = blockTextSizeHeading2 || textSizeHeading2;
+    const effectiveFontSizeH3 = blockTextSizeHeading3 || textSizeHeading3;
+    const effectiveLineSpacing = blockLineSpacing || lineSpacing;
+    const effectiveParagraphSpacing = blockParagraphSpacing || paragraphSpacing;
+    const effectiveFontFace = blockFontFace || fontFace;
+    const effectiveTextAlign = blockTextAlign || textAlign;
+
+    const maxWidth = dimensions.width - 2 * xMarginMm;
+
+    // Set font
+    pdf.setFont(effectiveFontFace);
+
+    // Get markdown content
+    const markdownContent =
+      typeof content === 'string'
+        ? content
+        : typeof blockChildren === 'string'
+        ? blockChildren
+        : '';
+
+    if (!markdownContent) return startY;
+
+    // Parse markdown
+    const tokens = parseMarkdown(markdownContent);
+
+    let y = startY;
+    let pageNum = 1;
+
+    // Create render context
+    const renderContext = {
+      pdf,
+      x: xMarginMm,
+      y,
+      maxWidth,
+      fontSizeNormal: toMm(effectiveFontSize),
+      fontSizeH1: toMm(effectiveFontSizeH1),
+      fontSizeH2: toMm(effectiveFontSizeH2),
+      fontSizeH3: toMm(effectiveFontSizeH3),
+      lineSpacing: toMm(effectiveLineSpacing),
+      paragraphSpacing: toMm(effectiveParagraphSpacing),
+      textAlign: effectiveTextAlign,
+    };
+
+    // Render each token
+    tokens.forEach((token: any) => {
+      // Check if we need a page break before rendering
+      const estimatedHeight = toMm(effectiveLineSpacing) * 3;
+      if (shouldBreakPage(y, estimatedHeight, dimensions.height, yMarginMm)) {
+        if (allowPagebreak) {
+          y = addNewPage(pdf, pageNum);
+          pageNum++;
+          renderContext.y = y;
+        } else {
+          console.warn(
+            'LetterBlock content exceeds page boundary with allowPagebreak=false'
+          );
+        }
+      }
+
+      if (token.type === 'paragraph') {
+        renderContext.y = y;
+        y = renderParagraph(renderContext, token.text);
+      } else if (token.type === 'heading') {
+        renderContext.y = y;
+        y = renderHeading(renderContext, token.text, token.depth);
+      } else if (token.type === 'list') {
+        token.items.forEach((item: any, index: number) => {
+          if (shouldBreakPage(y, estimatedHeight, dimensions.height, yMarginMm)) {
+            if (allowPagebreak) {
+              y = addNewPage(pdf, pageNum);
+              pageNum++;
+              renderContext.y = y;
+            }
+          }
+
+          renderContext.y = y;
+          y = renderListItem(renderContext, item.text, token.ordered, index);
+        });
+      } else if (token.type === 'space') {
+        y += toMm(effectiveLineSpacing);
+      }
+    });
+
+    return y;
+  };
+
+  // Helper function to render SeparatorLine content
+  const renderSeparatorLineContent = (pdf: jsPDF, startY: number): number => {
+    const lineWidth = dimensions.width - 2 * xMarginMm;
+    const spacingBefore = 3; // mm
+    const spacingAfter = 3; // mm
+    const lineThickness = 0.5; // mm
+
+    const y = startY + spacingBefore;
+
+    // Draw the horizontal line
+    pdf.setLineWidth(lineThickness);
+    pdf.line(xMarginMm, y, xMarginMm + lineWidth, y);
+
+    return y + spacingAfter;
+  };
+
+  // PDF is rendered in useEffect - component doesn't need to render anything
+  return null;
 };
 
 export default GcLetter;
