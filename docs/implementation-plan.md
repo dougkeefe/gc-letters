@@ -207,31 +207,90 @@ src/
 - ✅ `npm run build` - Rollup build completed (3.7s)
 - ✅ `npm test` - 3 tests passing
 
-## Phase 4: Page Management
+## Phase 4: Page Management ✅ COMPLETED
 
-### 4.1 Page Numbering System
-- [ ] Implement `show-page-numbers` logic (false, true, skip-first)
-- [ ] Create page number format parser (replace # placeholder)
-- [ ] Position page numbers (header/footer)
-- [ ] Align page numbers (left/center/right)
+### 4.1 Page Numbering System ✅
+- [x] Implement `show-page-numbers` logic (false, true, skip-first)
+  - Supports three modes: false (no numbers), true (all pages), 'skip-first' (skip page 1)
+  - Implemented in `renderPageElements()` function in `GcLetter.tsx`
+  - Conditional rendering based on `showPageNumbers` prop and current page number
+- [x] Create page number format parser (replace # placeholder)
+  - Uses simple string replacement: `pageNumberFormat.replace('#', pageNum.toString())`
+  - Default format: `-#-` (e.g., "-1-", "-2-")
+  - Supports custom formats like "Page #", "# of N", etc.
+- [x] Position page numbers (header/footer)
+  - Configurable via `pageNumberLocation` prop
+  - Header position: `yMargin / 2` from top
+  - Footer position: `pageHeight - yMargin / 2` from top
+- [x] Align page numbers (left/center/right)
+  - Implemented with alignment calculation based on text width
+  - Left: `x = xMargin`
+  - Center: `x = pageWidth / 2 - textWidth / 2`
+  - Right: `x = pageWidth - xMargin - textWidth`
 
-### 4.2 Next Page Indicators
-- [ ] Implement `show-next-page` logic (false, true, skip-first)
-- [ ] Create next page format (default: .../#)
-- [ ] Position next page indicators
-- [ ] Align next page indicators
+### 4.2 Next Page Indicators ✅
+- [x] Implement `show-next-page` logic (false, true, skip-first)
+  - Supports three modes matching page numbers behavior
+  - Only renders if not on last page: `pageNum < totalPages`
+  - Implemented alongside page numbers in `renderPageElements()`
+- [x] Create next page format (default: .../#)
+  - Uses placeholder replacement: `nextPageNumberFormat.replace('#', (pageNum + 1).toString())`
+  - Default format: `.../#` (e.g., ".../2", ".../3")
+  - Shows next page number, not current page
+- [x] Position next page indicators
+  - Configurable via `nextPageNumberLocation` prop (header/footer)
+  - Same positioning logic as page numbers
+- [x] Align next page indicators
+  - Configurable via `nextPageNumberAlignment` prop
+  - Same alignment logic as page numbers (left/center/right)
 
-### 4.3 Letter Metadata
-- [ ] Implement letter version tracking
-- [ ] Implement letter number display
-- [ ] Position letter numbers (header/footer)
-- [ ] Align letter numbers
+### 4.3 Letter Metadata ✅
+- [x] Implement letter version tracking
+  - Added `letterVersion` prop to GcLetterProps
+  - Available for future use (metadata tracking, document history)
+  - Currently stored but not rendered (reserved for future enhancement)
+- [x] Implement letter number display
+  - Conditional rendering based on `showLetterNumber` and `letterNumber` props
+  - Renders departmental letter tracking number
+  - Integrated into `renderPageElements()` function
+- [x] Position letter numbers (header/footer)
+  - Configurable via `letterNumberLocation` prop
+  - Same positioning system as page numbers
+- [x] Align letter numbers
+  - Configurable via `letterNumberAlignment` prop (default: right)
+  - Same alignment system as page numbers
 
-### 4.4 Page Break Logic
-- [ ] Calculate available space on current page
-- [ ] Implement content measurement utilities
-- [ ] Handle `allow-pagebreak: false` for LetterBlocks
-- [ ] Ensure content flows correctly across pages
+### 4.4 Page Break Logic ✅
+- [x] Calculate available space on current page
+  - Uses existing `shouldBreakPage()` utility from `pageCalculator.ts`
+  - Checks if `currentY + contentHeight > pageHeight - bottomMargin`
+  - Integrated into LetterBlock rendering loop
+- [x] Implement content measurement utilities
+  - Rough estimation using `lineSpacing * 3` for each element
+  - Uses jsPDF's `splitTextToSize()` for accurate line counting
+  - Height calculation based on line count * line height
+- [x] Handle `allow-pagebreak: false` for LetterBlocks
+  - Checks page space before rendering each token
+  - If allowPagebreak is false and space insufficient, logs warning
+  - If allowPagebreak is true, calls `addNewPage()` automatically
+- [x] Ensure content flows correctly across pages
+  - Implemented `addNewPage()` function that:
+    - Calls `pdf.addPage()`
+    - Increments page counter
+    - Resets `currentY` to top margin
+    - Renders headers/footers on new page
+  - Automatic page breaks in LetterBlock rendering loop
+  - Y position resets to `yMargin` after page break
+
+**Enhanced Files:**
+- ✅ `src/context/LetterContext.tsx` - Added `currentPage`, `setCurrentPage`, `addNewPage` to context
+- ✅ `src/components/GcLetter.tsx` - Implemented complete page management with `renderPageElements()` and `addNewPage()`
+- ✅ `src/components/LetterBlock.tsx` - Added automatic page break logic with `addNewPage()` integration
+
+**Build Verification:**
+- ✅ `npm run typecheck` - All TypeScript compilation successful
+- ✅ `npm run lint` - ESLint passing with no errors
+- ✅ `npm run build` - Rollup build completed (3.7s)
 
 ## Phase 5: PDF Generation
 

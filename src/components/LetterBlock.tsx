@@ -35,7 +35,7 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
   useEffect(() => {
     if (!context || !context.pdf) return;
 
-    const { pdf, currentY, setCurrentY, pageHeight, pageWidth } = context;
+    const { pdf, currentY, setCurrentY, pageHeight, pageWidth, addNewPage } = context;
 
     // Get typography settings (use block-level overrides or fall back to document-level)
     const effectiveFontSize = textSizeNormal || context.textSizeNormal;
@@ -88,6 +88,20 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
 
     // Render each token
     tokens.forEach((token) => {
+      // Check if we need a page break before rendering
+      const estimatedHeight = convertToMm(effectiveLineSpacing) * 3; // Rough estimate
+      if (shouldBreakPage(y, estimatedHeight, pageHeight, yMargin)) {
+        if (allowPagebreak) {
+          addNewPage();
+          y = yMargin; // Reset to top of new page
+          renderContext.y = y;
+        } else {
+          console.warn(
+            'LetterBlock content exceeds page boundary with allowPagebreak=false'
+          );
+        }
+      }
+
       if (token.type === 'paragraph') {
         const paragraphToken = token as Tokens.Paragraph;
         renderContext.y = y;
@@ -99,6 +113,15 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
       } else if (token.type === 'list') {
         const listToken = token as Tokens.List;
         listToken.items.forEach((item, index) => {
+          // Check for page break before each list item
+          if (shouldBreakPage(y, estimatedHeight, pageHeight, yMargin)) {
+            if (allowPagebreak) {
+              addNewPage();
+              y = yMargin;
+              renderContext.y = y;
+            }
+          }
+
           renderContext.y = y;
           y = renderListItem(
             renderContext,
@@ -109,17 +132,6 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
         });
       } else if (token.type === 'space') {
         y += convertToMm(effectiveLineSpacing);
-      }
-
-      // Check if we need a page break
-      if (!allowPagebreak && shouldBreakPage(y, 0, pageHeight, yMargin)) {
-        // If allowPagebreak is false and we're at the page boundary,
-        // we should have started this block on a new page
-        // This is a simplified implementation - in practice, you'd measure
-        // the entire block height before starting
-        console.warn(
-          'LetterBlock content exceeds page boundary with allowPagebreak=false'
-        );
       }
     });
 

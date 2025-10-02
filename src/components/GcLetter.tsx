@@ -34,19 +34,20 @@ const GcLetter: React.FC<GcLetterProps> = ({
   lineSpacing = '7mm',
   showPageNumbers = false,
   pageNumberFormat = '-#-',
-  pageNumberLocation: _pageNumberLocation = 'header',
-  pageNumberAlignment: _pageNumberAlignment = 'center',
+  pageNumberLocation = 'header',
+  pageNumberAlignment = 'center',
   showNextPage = false,
   nextPageNumberFormat = '.../#',
-  nextPageNumberLocation: _nextPageNumberLocation = 'header',
-  nextPageNumberAlignment: _nextPageNumberAlignment = 'center',
+  nextPageNumberLocation = 'header',
+  nextPageNumberAlignment = 'center',
   letterVersion: _letterVersion,
-  letterNumber: _letterNumber,
-  showLetterNumber: _showLetterNumber = false,
-  letterNumberLocation: _letterNumberLocation = 'footer',
-  letterNumberAlignment: _letterNumberAlignment = 'right',
+  letterNumber,
+  showLetterNumber = false,
+  letterNumberLocation = 'footer',
+  letterNumberAlignment = 'right',
 }) => {
   const [currentY, setCurrentY] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const pdfRef = useRef<jsPDF | null>(null);
 
   useEffect(() => {
@@ -91,6 +92,125 @@ const GcLetter: React.FC<GcLetterProps> = ({
   const xMarginMm = convertToMm(xMargin);
   const yMarginMm = convertToMm(yMargin);
 
+  // Function to render page numbers, metadata, and next page indicators
+  const renderPageElements = React.useCallback(
+    (pdf: jsPDF, pageNum: number) => {
+      const totalPages = pdf.getNumberOfPages();
+
+      // Render page numbers
+      if (showPageNumbers) {
+        if (showPageNumbers === 'skip-first' && pageNum === 1) {
+          // Skip first page
+        } else {
+          const pageText = pageNumberFormat.replace('#', pageNum.toString());
+          const textWidth = pdf.getTextWidth(pageText);
+
+          let x: number;
+          if (pageNumberAlignment === 'left') {
+            x = xMarginMm;
+          } else if (pageNumberAlignment === 'right') {
+            x = dimensions.width - xMarginMm - textWidth;
+          } else {
+            x = dimensions.width / 2 - textWidth / 2;
+          }
+
+          const y =
+            pageNumberLocation === 'header'
+              ? yMarginMm / 2
+              : dimensions.height - yMarginMm / 2;
+          pdf.text(pageText, x, y);
+        }
+      }
+
+      // Render next page indicator (if not last page)
+      if (showNextPage && pageNum < totalPages) {
+        if (showNextPage === 'skip-first' && pageNum === 1) {
+          // Skip first page
+        } else {
+          const nextPageText = nextPageNumberFormat.replace(
+            '#',
+            (pageNum + 1).toString()
+          );
+          const textWidth = pdf.getTextWidth(nextPageText);
+
+          let x: number;
+          if (nextPageNumberAlignment === 'left') {
+            x = xMarginMm;
+          } else if (nextPageNumberAlignment === 'right') {
+            x = dimensions.width - xMarginMm - textWidth;
+          } else {
+            x = dimensions.width / 2 - textWidth / 2;
+          }
+
+          const y =
+            nextPageNumberLocation === 'header'
+              ? yMarginMm / 2
+              : dimensions.height - yMarginMm / 2;
+          pdf.text(nextPageText, x, y);
+        }
+      }
+
+      // Render letter number
+      if (showLetterNumber && letterNumber) {
+        const textWidth = pdf.getTextWidth(letterNumber);
+
+        let x: number;
+        if (letterNumberAlignment === 'left') {
+          x = xMarginMm;
+        } else if (letterNumberAlignment === 'right') {
+          x = dimensions.width - xMarginMm - textWidth;
+        } else {
+          x = dimensions.width / 2 - textWidth / 2;
+        }
+
+        const y =
+          letterNumberLocation === 'header'
+            ? yMarginMm / 2
+            : dimensions.height - yMarginMm / 2;
+        pdf.text(letterNumber, x, y);
+      }
+    },
+    [
+      showPageNumbers,
+      pageNumberFormat,
+      pageNumberAlignment,
+      pageNumberLocation,
+      showNextPage,
+      nextPageNumberFormat,
+      nextPageNumberAlignment,
+      nextPageNumberLocation,
+      showLetterNumber,
+      letterNumber,
+      letterNumberAlignment,
+      letterNumberLocation,
+      xMarginMm,
+      yMarginMm,
+      dimensions.width,
+      dimensions.height,
+    ]
+  );
+
+  // Function to add a new page and render headers/footers
+  const addNewPage = React.useCallback(() => {
+    const pdf = pdfRef.current;
+    if (!pdf) return;
+
+    pdf.addPage();
+    const newPageNum = currentPage + 1;
+    setCurrentPage(newPageNum);
+    setCurrentY(yMarginMm);
+
+    // Render headers/footers for the new page
+    renderPageElements(pdf, newPageNum);
+  }, [currentPage, yMarginMm, renderPageElements]);
+
+  // Render initial page elements
+  useEffect(() => {
+    if (pdfRef.current) {
+      renderPageElements(pdfRef.current, currentPage);
+    }
+  }, [currentPage, renderPageElements]);
+
   // Only render if PDF is initialized
   if (!pdfRef.current) {
     return null;
@@ -102,6 +222,9 @@ const GcLetter: React.FC<GcLetterProps> = ({
     setCurrentY,
     pageHeight: dimensions.height,
     pageWidth: dimensions.width,
+    currentPage,
+    setCurrentPage,
+    addNewPage,
     pageType,
     xMargin: xMarginMm.toString() + 'mm',
     yMargin: yMarginMm.toString() + 'mm',

@@ -8,6 +8,9 @@ interface LetterContextValue extends LetterContextType {
   setCurrentY: (y: number) => void;
   pageHeight: number;
   pageWidth: number;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  addNewPage: () => void;
 }
 
 const LetterContext = createContext<LetterContextValue | null>(null);
