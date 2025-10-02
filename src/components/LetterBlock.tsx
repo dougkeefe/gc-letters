@@ -148,6 +148,7 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
 
     // Update current Y position
     setCurrentY(y);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     content,
     children,
@@ -160,7 +161,8 @@ const LetterBlock: React.FC<LetterBlockProps> = ({
     textSizeHeading2,
     textSizeHeading3,
     textAlign,
-    context,
+    // Don't include context itself to avoid infinite loops
+    // The context values we use (pdf, pageHeight, etc.) are stable
   ]);
 
   return (
