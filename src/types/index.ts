@@ -48,6 +48,10 @@ export interface GcLetterProps {
   showLetterNumber?: boolean;
   letterNumberLocation?: HeaderFooterLocation;
   letterNumberAlignment?: Alignment;
+
+  // Canada Wordmark (FIP requirement)
+  showCanadaWordmark?: boolean;
+  canadaWordmarkPath?: string;
 }
 
 export interface LetterBlockProps {

@@ -10,6 +10,7 @@
     "dist",
     "docs",
     "examples",
+    "assets",
     "README.md",
     "LICENSE"
   ],

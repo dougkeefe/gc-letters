@@ -79,7 +79,8 @@ function BasicExample({
 
       <GcLetter
         fileName="basic-letter"
-        deptSignature="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg"
+        deptSignature="/veterans-affairs-signature.png"
+        canadaWordmarkPath="../assets/Canada_wordmark.png"
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
         <LetterBlock content={`# Basic Letter
@@ -125,7 +126,8 @@ function MultiPageExample({
 
       <GcLetter
         fileName="multi-page-letter"
-        deptSignature="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg"
+        deptSignature="/veterans-affairs-signature.png"
+        canadaWordmarkPath="../assets/Canada_wordmark.png"
         showPageNumbers="skip-first"
         pageNumberFormat="Page #"
         pageNumberLocation="footer"
@@ -214,7 +216,8 @@ function CustomFormattingExample({
 
       <GcLetter
         fileName="custom-formatted-letter"
-        deptSignature="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg"
+        deptSignature="/veterans-affairs-signature.png"
+        canadaWordmarkPath="../assets/Canada_wordmark.png"
         fontFace="Helvetica"
         textSizeNormal="12pt"
         textSizeHeading1="18pt"

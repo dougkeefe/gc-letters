@@ -51,6 +51,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
   showLetterNumber = false,
   letterNumberLocation = 'footer',
   letterNumberAlignment = 'right',
+  showCanadaWordmark = true,
+  canadaWordmarkPath,
 }) => {
   const pdfRef = useRef<jsPDF | null>(null);
   const hasRendered = useRef(false);
@@ -60,6 +62,9 @@ const GcLetter: React.FC<GcLetterProps> = ({
     // Only render once
     if (hasRendered.current) return;
     hasRendered.current = true;
+
+    // Async rendering function
+    const renderPDF = async () => {
     // Validate required props
     validateFileName(fileName);
     validateDeptSignature(deptSignature);
@@ -86,6 +91,11 @@ const GcLetter: React.FC<GcLetterProps> = ({
     // Render initial page elements
     renderPageElements(pdf, 1);
 
+    // Render Canada wordmark on first page (bottom left)
+    if (showCanadaWordmark) {
+      await renderCanadaWordmark(pdf, 1);
+    }
+
     // Process children sequentially
     React.Children.forEach(children, (child) => {
       if (!React.isValidElement(child)) return;
@@ -109,6 +119,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
       };
       onReady(download);
     }
+    };
+
+    // Call the async render function
+    renderPDF();
   }); // No dependencies - runs on every render, but hasRendered prevents re-execution
 
   const dimensions = getPageDimensions(pageType);
@@ -342,6 +356,37 @@ const GcLetter: React.FC<GcLetterProps> = ({
     pdf.line(xMarginMm, y, xMarginMm + lineWidth, y);
 
     return y + spacingAfter;
+  };
+
+  // Helper function to render Canada wordmark
+  const renderCanadaWordmark = async (pdf: jsPDF, pageNum: number) => {
+    // Only render on first page
+    if (pageNum !== 1) return;
+
+    const wordmarkPath = canadaWordmarkPath || 'assets/Canada_wordmark.png';
+
+    try {
+      // Load the image
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = wordmarkPath;
+      });
+
+      // Position at bottom left, above the bottom margin
+      const wordmarkWidth = 30; // mm
+      const wordmarkHeight = (img.height / img.width) * wordmarkWidth;
+      const x = xMarginMm;
+      const y = dimensions.height - yMarginMm - wordmarkHeight - 3; // 3mm spacing above margin
+
+      pdf.addImage(img, 'PNG', x, y, wordmarkWidth, wordmarkHeight);
+    } catch (error) {
+      console.warn('Failed to load Canada wordmark:', error);
+      // Continue without the wordmark if it fails to load
+    }
   };
 
   // PDF is rendered in useEffect - component doesn't need to render anything

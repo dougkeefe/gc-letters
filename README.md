@@ -247,10 +247,23 @@ npm run lint
 
 ### Image Loading
 
+**Supported image formats**: PNG, JPG/JPEG only
+
+⚠️ **SVG is not supported** by the underlying jsPDF library. Convert SVG files to PNG before use.
+
 Department signatures must be accessible:
 - Same domain: Works automatically
 - External domain: Requires CORS configuration
 - For testing: Use data URLs
+
+```tsx
+// ✅ Supported
+deptSignature="signature.png"
+deptSignature="signature.jpg"
+
+// ❌ Not supported
+deptSignature="signature.svg"  // Convert to PNG first
+```
 
 ## Roadmap
 
