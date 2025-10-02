@@ -115,14 +115,14 @@ describe('pdfGenerator', () => {
 
     it('should resolve with image on successful load', async () => {
       const mockImage = {
-        onload: null as any,
-        onerror: null as any,
+        onload: null as (() => void) | null,
+        onerror: null as (() => void) | null,
         src: '',
         crossOrigin: '',
       };
 
       // Mock Image constructor
-      global.Image = jest.fn(() => mockImage) as any;
+      global.Image = jest.fn(() => mockImage) as unknown as typeof Image;
 
       const loadPromise = loadImage('https://example.com/image.png');
 
@@ -138,13 +138,13 @@ describe('pdfGenerator', () => {
 
     it('should reject with error on failed load', async () => {
       const mockImage = {
-        onload: null as any,
-        onerror: null as any,
+        onload: null as (() => void) | null,
+        onerror: null as (() => void) | null,
         src: '',
         crossOrigin: '',
       };
 
-      global.Image = jest.fn(() => mockImage) as any;
+      global.Image = jest.fn(() => mockImage) as unknown as typeof Image;
 
       const loadPromise = loadImage('https://example.com/missing.png');
 
@@ -160,13 +160,13 @@ describe('pdfGenerator', () => {
 
     it('should set crossOrigin to Anonymous', () => {
       const mockImage = {
-        onload: null as any,
-        onerror: null as any,
+        onload: null as (() => void) | null,
+        onerror: null as (() => void) | null,
         src: '',
         crossOrigin: '',
       };
 
-      global.Image = jest.fn(() => mockImage) as any;
+      global.Image = jest.fn(() => mockImage) as unknown as typeof Image;
 
       loadImage('https://example.com/image.png');
 

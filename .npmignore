@@ -1,0 +1,57 @@
+# Source files (publish only dist/)
+src/
+
+# Tests
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+*.spec.ts
+*.spec.tsx
+jest.config.cjs
+setupTests.ts
+
+# Documentation (keep in npm, but exclude development docs)
+docs/implementation-plan.md
+CLAUDE.md
+
+# Development files
+.husky/
+.eslintrc.json
+.prettierrc.json
+rollup.config.js
+tsconfig.json
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build artifacts (keep dist/)
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Examples (keep in npm for reference)
+# examples/ - kept for users
+
+# Keep these in npm:
+# dist/
+# docs/ (API, usage guides)
+# examples/
+# README.md
+# LICENSE
+# package.json

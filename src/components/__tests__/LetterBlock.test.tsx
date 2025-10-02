@@ -181,8 +181,8 @@ Final paragraph text.
             <LetterBlock content="Inner" />
           </LetterBlock>
         );
-      } catch (error: any) {
-        expect(error.message).toContain('must be a direct child of GcLetter');
+      } catch (error) {
+        expect((error as Error).message).toContain('must be a direct child of GcLetter');
       }
 
       consoleSpy.mockRestore();
