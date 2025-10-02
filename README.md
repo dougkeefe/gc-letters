@@ -1,15 +1,21 @@
-# GC Letters
+# gc-letters
 
-An npm package that makes it easy for Government of Canada departments to generate Federal Identity Program (FIP) compliant letters as PDFs.
+[![npm version](https://img.shields.io/npm/v/gc-letters.svg)](https://www.npmjs.com/package/gc-letters)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+An npm package for Government of Canada departments to generate Federal Identity Program (FIP) compliant letters as PDFs directly in the browser.
 
 ## Features
 
-- **FIP Standards Compliant** - Generates letters following Government of Canada Federal Identity Program guidelines
-- **Browser-Based** - No server-side dependencies; PDFs are generated in-browser using jsPDF
-- **Markdown Support** - Write letter content in markdown for easy formatting
-- **Flexible Layout** - Control page breaks, margins, fonts, and spacing at document and block levels
-- **Department Branding** - Include department letterhead signatures
-- **Page Numbering** - Multiple options for page numbers and next-page indicators
+- ✅ **FIP Compliant** - Follows Government of Canada Federal Identity Program standards
+- ✅ **Browser-Based** - No server required; generates PDFs client-side using jsPDF
+- ✅ **Markdown Support** - Write letter content in markdown for easy formatting
+- ✅ **React Components** - Simple, declarative API using React
+- ✅ **Flexible Typography** - Control fonts, sizes, spacing at document and block levels
+- ✅ **Page Management** - Automatic page breaks, page numbering, and next-page indicators
+- ✅ **Letter Metadata** - Support for letter numbers, versions, and tracking
+- ✅ **Multiple Page Sizes** - Letter, Legal, and A4 formats
+- ✅ **TypeScript** - Full TypeScript support with type definitions
 
 ## Installation
 
@@ -17,115 +23,282 @@ An npm package that makes it easy for Government of Canada departments to genera
 npm install gc-letters
 ```
 
+### Peer Dependencies
+
+Requires React 17 or 18:
+
+```bash
+npm install react react-dom
+```
+
 ## Quick Start
 
-```jsx
-import { GcLetter, LetterBlock, SeparatorLine } from 'gc-letters';
+```tsx
+import React, { useState } from 'react';
+import { GcLetter, LetterBlock } from 'gc-letters';
 
 function MyLetter() {
+  const [downloadFn, setDownloadFn] = useState(null);
+
   return (
-    <GcLetter
-      file-name="my-letter.pdf"
-      dept-signature="https://example.com/dept-logo.png"
-      show-page-numbers={true}
-    >
-      <LetterBlock>
-        # Dear Recipient
+    <div>
+      <button onClick={() => downloadFn?.()}>
+        Download PDF
+      </button>
 
-        This is the body of my letter written in **markdown**.
+      <GcLetter
+        fileName="my-letter"
+        deptSignature="https://example.com/signature.png"
+        onReady={(download) => setDownloadFn(() => download)}
+      >
+        <LetterBlock content={`# Dear Recipient
 
-        - Point one
-        - Point two
-      </LetterBlock>
+This is my letter written in **markdown**.
 
-      <SeparatorLine />
+## Key Points
 
-      <LetterBlock allow-pagebreak={false}>
-        ## Closing Remarks
+- First point
+- Second point
+- Third point
 
-        This block won't break across pages.
-      </LetterBlock>
-    </GcLetter>
+Thank you for your attention.`} />
+      </GcLetter>
+    </div>
   );
 }
 ```
 
 ## Components
 
-### `<GcLetter>`
+### GcLetter
 
-The main wrapper component for your letter. Handles document-level settings.
+Main wrapper component that handles document-level settings and PDF generation.
 
-**Required Parameters:**
-- `file-name` - The output PDF filename
-- `dept-signature` - URL to department letterhead PNG
+```tsx
+<GcLetter
+  fileName="my-letter"                    // Required: PDF filename
+  deptSignature="https://..."              // Required: Department signature URL
+  pageType="letter"                        // Optional: 'letter' | 'legal' | 'a4'
+  showPageNumbers={true}                   // Optional: Display page numbers
+  onReady={(download) => download()}       // Optional: Callback with download function
+>
+  {children}
+</GcLetter>
+```
 
-**Optional Parameters:**
+**See [API Reference](./docs/API.md) for complete props documentation.**
 
-*Layout:*
-- `page-type` - Paper size: `letter` (default), `legal`, `a4`
-- `x-margin` - Left/right margins (default: `38mm`)
-- `y-margin` - Top/bottom margins (default: `13mm`)
+### LetterBlock
 
-*Typography:*
-- `font-face` - Font family (default: `Helvetica Light`)
-- `text-size-normal` - Body text size (default: `11pt`)
-- `text-size-heading-1` - H1 size (default: `16pt`)
-- `text-size-heading-2` - H2 size (default: `14pt`)
-- `text-size-heading-3` - H3 size (default: `12pt`)
-- `text-align` - Text alignment: `left` (default), `right`, `center`, `full`
-- `paragraph-spacing` - Space between paragraphs (default: `11mm`)
-- `line-spacing` - Space between lines (default: `7mm`)
+Content section component for rendering markdown.
 
-*Page Numbers:*
-- `show-page-numbers` - Display page numbers: `false` (default), `true`, `skip-first`
-- `page-number-format` - Format string with `#` as placeholder (default: `-#-`)
-- `page-number-location` - Position: `header` (default), `footer`
-- `page-number-alignment` - Alignment: `center` (default), `left`, `right`
+```tsx
+<LetterBlock
+  content="# Heading\n\nParagraph text"   // Markdown content
+  allowPagebreak={true}                    // Allow page breaks
+  textAlign="left"                         // Override alignment
+/>
+```
 
-*Next Page Indicators:*
-- `show-next-page` - Show next page indicator: `false` (default), `true`, `skip-first`
-- `next-page-number-format` - Format string (default: `.../#`)
-- `next-page-number-location` - Position: `header` (default), `footer`
-- `next-page-number-alignment` - Alignment: `center` (default), `left`, `right`
+**Supported Markdown**:
+- Headings: `#`, `##`, `###`
+- Bold: `**text**`
+- Italic: `*text*`
+- Lists: `- item` or `1. item`
 
-*Letter Metadata:*
-- `letter-version` - Track letter version
-- `letter-number` - Department letter number
-- `show-letter-number` - Display letter number: `false` (default), `true`
-- `letter-number-location` - Position: `footer` (default), `header`
-- `letter-number-alignment` - Alignment: `right` (default), `left`, `center`
+### SeparatorLine
 
-### `<LetterBlock>`
+Horizontal line for visual separation.
 
-A content section within your letter. Use markdown for formatting.
+```tsx
+<SeparatorLine />
+```
 
-**Optional Parameters:**
-- `content` - Markdown content (alternative to using children)
-- `allow-pagebreak` - Allow content to break across pages: `true` (default), `false`
-- Typography overrides: `paragraph-spacing`, `line-spacing`, `font-face`, `text-size-*`, `text-align`
+## Examples
 
-### `<SeparatorLine>`
+### Basic Letter
 
-Adds a horizontal separator line to your document. No parameters.
+```tsx
+<GcLetter fileName="basic" deptSignature="https://...">
+  <LetterBlock content="Simple letter content." />
+</GcLetter>
+```
+
+### Multi-Page with Page Numbers
+
+```tsx
+<GcLetter
+  fileName="multi-page"
+  deptSignature="https://..."
+  showPageNumbers="skip-first"
+  pageNumberFormat="Page #"
+  showNextPage={true}
+>
+  <LetterBlock content={longContent} />
+</GcLetter>
+```
+
+### Custom Formatting
+
+```tsx
+<GcLetter
+  fileName="formatted"
+  deptSignature="https://..."
+  fontFace="Times"
+  textSizeNormal="12pt"
+  paragraphSpacing="15mm"
+>
+  <LetterBlock content="# Title" textAlign="center" />
+  <LetterBlock content="Body text" />
+  <LetterBlock content="Signature" textAlign="right" />
+</GcLetter>
+```
+
+**More examples**: See [examples/](./examples/) directory
+
+## Documentation
+
+- 📖 [API Reference](./docs/API.md) - Complete component and prop documentation
+- 📘 [Usage Guide](./docs/USAGE_GUIDE.md) - Practical examples and patterns
+- 🍁 [FIP Compliance Guide](./docs/FIP_COMPLIANCE.md) - Federal Identity Program standards
+- 🔧 [Troubleshooting](./docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+## FIP Compliance
+
+This package helps create letters that comply with the Government of Canada's Federal Identity Program:
+
+**Requirements**:
+- ✅ Helvetica typeface (default)
+- ✅ Department signature with flag symbol
+- ✅ Appropriate margins (38mm × 13mm default)
+- ✅ Bilingual support
+- ✅ Canada wordmark (in department signature)
+
+**Read the [FIP Compliance Guide](./docs/FIP_COMPLIANCE.md) for detailed requirements.**
+
+## Browser Support
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- **Not supported**: Internet Explorer
+
+## TypeScript
+
+Fully typed with TypeScript. Import types:
+
+```tsx
+import type { GcLetterProps, LetterBlockProps, PageType, Alignment } from 'gc-letters';
+```
+
+## Testing
+
+The package includes comprehensive tests:
+
+```bash
+npm test              # Run all tests
+npm test -- --coverage  # Run with coverage report
+```
+
+**Test Coverage**:
+- 124 tests passing
+- 87%+ coverage on utility functions
+- Visual test samples for manual verification
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Build the package
+npm run build
+
+# Type check
+npm run typecheck
+
+# Lint
+npm run lint
+```
 
 ## Important Notes
 
-- **Do NOT nest components** - Never place a `<LetterBlock>` inside another `<LetterBlock>`
-- **Markdown content only** - All letter content should be markdown inside `<LetterBlock>` components
-- **Browser-based** - No additional hosting or server configuration required
-- **Security** - Letters are generated client-side with no external dependencies in production
+### Component Nesting
 
-## Future Enhancements
+⚠️ **LetterBlock components cannot be nested**. Each must be a direct child of GcLetter:
 
-- Image support in markdown
-- Table rendering
-- Server-side rendering option for API-based generation
+```tsx
+// ✅ Correct
+<GcLetter {...props}>
+  <LetterBlock content="First" />
+  <LetterBlock content="Second" />
+</GcLetter>
 
-## License
+// ❌ Incorrect
+<GcLetter {...props}>
+  <LetterBlock>
+    <LetterBlock /> {/* Will throw error */}
+  </LetterBlock>
+</GcLetter>
+```
 
-MIT
+### Image Loading
+
+Department signatures must be accessible:
+- Same domain: Works automatically
+- External domain: Requires CORS configuration
+- For testing: Use data URLs
+
+## Roadmap
+
+Future enhancements being considered:
+
+- [ ] Image embedding in markdown
+- [ ] Table support
+- [ ] Server-side rendering option
+- [ ] Additional fonts
+- [ ] Custom templates
 
 ## Contributing
 
-This project is intended to be open source. Contributions are welcome.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new features
+4. Ensure all tests pass
+5. Submit a pull request
+
+See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for details.
+
+## License
+
+MIT © [Your Organization]
+
+See [LICENSE](./LICENSE) file for details.
+
+## Support
+
+- 📖 [Documentation](./docs/)
+- 🐛 [Report Issues](https://github.com/yourusername/gc-letters/issues)
+- 💬 [Discussions](https://github.com/yourusername/gc-letters/discussions)
+
+## Acknowledgments
+
+Built with:
+- [jsPDF](https://github.com/parallax/jsPDF) - PDF generation
+- [marked](https://github.com/markedjs/marked) - Markdown parsing
+- [React](https://reactjs.org/) - Component framework
+
+## Related Resources
+
+- [Government of Canada Design System](https://design.canada.ca/)
+- [FIP Design Standard](https://www.canada.ca/en/treasury-board-secretariat/services/government-communications/design-standard.html)
+- [FIP Technical Specifications](https://www.canada.ca/en/treasury-board-secretariat/services/government-communications/federal-identity-program/technical-specifications.html)
+
+---
+
+Made with 🍁 for the Government of Canada
