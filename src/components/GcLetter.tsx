@@ -15,6 +15,7 @@ import {
   renderHeading,
   renderListItem,
 } from '../utils/markdownParser';
+import { CANADA_WORDMARK_BASE64 } from '../assets/canadaWordmark';
 
 /**
  * GcLetter - Main wrapper component for FIP-compliant letters
@@ -36,8 +37,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
   textSizeHeading2 = '14pt',
   textSizeHeading3 = '12pt',
   textAlign = 'left',
-  paragraphSpacing = '11mm',
-  lineSpacing = '7mm',
+  paragraphSpacing = '5mm',
+  lineSpacing = '5mm',
   showPageNumbers = false,
   pageNumberFormat = '-#-',
   pageNumberLocation = 'header',
@@ -52,7 +53,7 @@ const GcLetter: React.FC<GcLetterProps> = ({
   letterNumberLocation = 'footer',
   letterNumberAlignment = 'right',
   showCanadaWordmark = true,
-  canadaWordmarkPath,
+  canadaWordmarkPath = CANADA_WORDMARK_BASE64,
 }) => {
   const pdfRef = useRef<jsPDF | null>(null);
   const hasRendered = useRef(false);
@@ -91,6 +92,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
     // Render initial page elements
     renderPageElements(pdf, 1);
 
+    // Render department signature at top
+    const signatureHeight = await renderDepartmentSignature(pdf);
+    y = topMargin + signatureHeight + 10; // Add spacing after signature
+
     // Render Canada wordmark on first page (bottom left)
     if (showCanadaWordmark) {
       await renderCanadaWordmark(pdf, 1);
@@ -108,7 +113,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
       }
       // Handle SeparatorLine components
       else if (child.type && (child.type as any).name === 'SeparatorLine') {
-        y = renderSeparatorLineContent(pdf, y);
+        const props = child.props as any;
+        y = renderSeparatorLineContent(pdf, y, props);
       }
     });
 
@@ -134,6 +140,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
     (pdf: jsPDF, pageNum: number) => {
       const totalPages = pdf.getNumberOfPages();
 
+      // Set consistent font size and style for page elements
+      pdf.setFontSize(8); // Smaller font for page numbers and metadata
+      pdf.setFont(fontFace, 'normal');
+
       // Render page numbers
       if (showPageNumbers) {
         if (showPageNumbers === 'skip-first' && pageNum === 1) {
@@ -153,8 +163,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
           const y =
             pageNumberLocation === 'header'
-              ? yMarginMm / 2
-              : dimensions.height - yMarginMm / 2;
+              ? yMarginMm
+              : dimensions.height - yMarginMm;
           pdf.text(pageText, x, y);
         }
       }
@@ -181,8 +191,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
           const y =
             nextPageNumberLocation === 'header'
-              ? yMarginMm / 2
-              : dimensions.height - yMarginMm / 2;
+              ? yMarginMm
+              : dimensions.height - yMarginMm;
           pdf.text(nextPageText, x, y);
         }
       }
@@ -202,10 +212,13 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
         const y =
           letterNumberLocation === 'header'
-            ? yMarginMm / 2
-            : dimensions.height - yMarginMm / 2;
+            ? yMarginMm
+            : dimensions.height - yMarginMm;
         pdf.text(letterNumber, x, y);
       }
+
+      // Restore default font size for content
+      pdf.setFontSize(parseFloat(textSizeNormal));
     },
     [
       showPageNumbers,
@@ -224,6 +237,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
       yMarginMm,
       dimensions.width,
       dimensions.height,
+      fontFace,
+      textSizeNormal,
     ]
   );
 
@@ -231,7 +246,9 @@ const GcLetter: React.FC<GcLetterProps> = ({
   const addNewPage = (pdf: jsPDF, pageNum: number): number => {
     pdf.addPage();
     renderPageElements(pdf, pageNum + 1);
-    return yMarginMm; // Return new Y position
+    // Use a larger top margin for subsequent pages (no dept signature)
+    // First page has signature which adds visual balance; subsequent pages need more space
+    return yMarginMm * 2; // Double the margin for pages without signature
   };
 
   // Helper function to render LetterBlock content
@@ -284,33 +301,76 @@ const GcLetter: React.FC<GcLetterProps> = ({
     let y = startY;
     let pageNum = 1;
 
+    // Helper to extract font size in points (jsPDF expects points, not mm)
+    const extractFontSizePt = (sizeStr: string): number => {
+      if (sizeStr.endsWith('pt')) {
+        return parseFloat(sizeStr);
+      }
+      // If not in points, convert from mm to points
+      const sizeInMm = toMm(sizeStr);
+      return sizeInMm / 0.3528; // Convert mm to pt
+    };
+
     // Create render context
     const renderContext = {
       pdf,
       x: xMarginMm,
       y,
       maxWidth,
-      fontSizeNormal: toMm(effectiveFontSize),
-      fontSizeH1: toMm(effectiveFontSizeH1),
-      fontSizeH2: toMm(effectiveFontSizeH2),
-      fontSizeH3: toMm(effectiveFontSizeH3),
+      fontSizeNormal: extractFontSizePt(effectiveFontSize),
+      fontSizeH1: extractFontSizePt(effectiveFontSizeH1),
+      fontSizeH2: extractFontSizePt(effectiveFontSizeH2),
+      fontSizeH3: extractFontSizePt(effectiveFontSizeH3),
       lineSpacing: toMm(effectiveLineSpacing),
       paragraphSpacing: toMm(effectiveParagraphSpacing),
       textAlign: effectiveTextAlign,
     };
 
+    // Helper to calculate effective bottom margin (accounting for wordmark on first page)
+    const getEffectiveBottomMargin = (currentPageNum: number): number => {
+      if (currentPageNum === 1 && showCanadaWordmark) {
+        // FIP specs: Canada wordmark is 13mm from bottom edge, 30mm wide
+        // Clear space requirement: height of letter "C" (approximately 1/3 of wordmark height)
+        const wordmarkWidth = 30; // mm (per FIP specs)
+        const wordmarkHeight = (34 / 144) * wordmarkWidth; // aspect ratio from original PNG
+        const clearSpace = wordmarkHeight / 3; // height of letter "C" (approx)
+        const wordmarkBottomPosition = 13; // mm from bottom edge (per FIP specs)
+
+        // Content should stay above: wordmark position + wordmark height + clear space
+        return wordmarkBottomPosition + wordmarkHeight + clearSpace;
+      }
+      return yMarginMm;
+    };
+
+    // If allowPagebreak is false, check if we need to start a new page before rendering
+    if (!allowPagebreak) {
+      // Estimate the height needed for this block (rough estimate)
+      const estimatedBlockHeight = toMm(effectiveLineSpacing) * tokens.length * 3;
+      const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
+
+      if (shouldBreakPage(y, estimatedBlockHeight, dimensions.height, effectiveBottomMargin)) {
+        // Start a new page to keep the entire block together
+        y = addNewPage(pdf, pageNum);
+        pageNum++;
+        renderContext.y = y;
+      }
+    }
+
     // Render each token
     tokens.forEach((token: any) => {
       // Check if we need a page break before rendering
       const estimatedHeight = toMm(effectiveLineSpacing) * 3;
-      if (shouldBreakPage(y, estimatedHeight, dimensions.height, yMarginMm)) {
+      const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
+      if (shouldBreakPage(y, estimatedHeight, dimensions.height, effectiveBottomMargin)) {
         if (allowPagebreak) {
           y = addNewPage(pdf, pageNum);
           pageNum++;
           renderContext.y = y;
         } else {
+          // Block content is too large to fit on a single page
+          // This warning indicates the block itself exceeds one page height
           console.warn(
-            'LetterBlock content exceeds page boundary with allowPagebreak=false'
+            'LetterBlock content is too large to fit on a single page even with allowPagebreak=false. Consider breaking content into smaller blocks or setting allowPagebreak=true.'
           );
         }
       }
@@ -323,7 +383,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
         y = renderHeading(renderContext, token.text, token.depth);
       } else if (token.type === 'list') {
         token.items.forEach((item: any, index: number) => {
-          if (shouldBreakPage(y, estimatedHeight, dimensions.height, yMarginMm)) {
+          const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
+          if (shouldBreakPage(y, estimatedHeight, dimensions.height, effectiveBottomMargin)) {
             if (allowPagebreak) {
               y = addNewPage(pdf, pageNum);
               pageNum++;
@@ -334,6 +395,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
           renderContext.y = y;
           y = renderListItem(renderContext, item.text, token.ordered, index);
         });
+        // Add paragraph spacing after the list
+        y += toMm(effectiveParagraphSpacing);
       } else if (token.type === 'space') {
         y += toMm(effectiveLineSpacing);
       }
@@ -343,10 +406,12 @@ const GcLetter: React.FC<GcLetterProps> = ({
   };
 
   // Helper function to render SeparatorLine content
-  const renderSeparatorLineContent = (pdf: jsPDF, startY: number): number => {
+  const renderSeparatorLineContent = (pdf: jsPDF, startY: number, props: any = {}): number => {
+    const { topMargin, bottomMargin } = props;
+
     const lineWidth = dimensions.width - 2 * xMarginMm;
-    const spacingBefore = 3; // mm
-    const spacingAfter = 3; // mm
+    const spacingBefore = topMargin ? convertToMm(topMargin) : convertToMm(paragraphSpacing); // Use standard paragraph spacing by default
+    const spacingAfter = bottomMargin ? convertToMm(bottomMargin) : convertToMm(paragraphSpacing) * 2; // Double spacing by default
     const lineThickness = 0.5; // mm
 
     const y = startY + spacingBefore;
@@ -358,12 +423,46 @@ const GcLetter: React.FC<GcLetterProps> = ({
     return y + spacingAfter;
   };
 
+  // Helper function to render department signature
+  const renderDepartmentSignature = async (pdf: jsPDF): Promise<number> => {
+    try {
+      // Load the image
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = deptSignature;
+      });
+
+      // Calculate dimensions (max width 60mm, maintain aspect ratio)
+      const maxWidth = 60; // mm
+      const aspectRatio = img.height / img.width;
+      const signatureWidth = maxWidth;
+      const signatureHeight = signatureWidth * aspectRatio;
+
+      // Position at top left margin
+      const x = xMarginMm;
+      const y = yMarginMm;
+
+      pdf.addImage(img, 'PNG', x, y, signatureWidth, signatureHeight);
+
+      return signatureHeight; // Return height for Y position tracking
+    } catch (error) {
+      console.error('Failed to load department signature:', error);
+      return 0; // Return 0 if signature fails to load
+    }
+  };
+
   // Helper function to render Canada wordmark
   const renderCanadaWordmark = async (pdf: jsPDF, pageNum: number) => {
     // Only render on first page
     if (pageNum !== 1) return;
 
-    const wordmarkPath = canadaWordmarkPath || 'assets/Canada_wordmark.png';
+    console.log('[DEBUG] renderCanadaWordmark called for page', pageNum);
+    console.log('[DEBUG] showCanadaWordmark:', showCanadaWordmark);
+    console.log('[DEBUG] canadaWordmarkPath:', canadaWordmarkPath?.substring(0, 50) + '...');
 
     try {
       // Load the image
@@ -373,16 +472,25 @@ const GcLetter: React.FC<GcLetterProps> = ({
       await new Promise((resolve, reject) => {
         img.onload = resolve;
         img.onerror = reject;
-        img.src = wordmarkPath;
+        img.src = canadaWordmarkPath;
       });
 
-      // Position at bottom left, above the bottom margin
-      const wordmarkWidth = 30; // mm
-      const wordmarkHeight = (img.height / img.width) * wordmarkWidth;
-      const x = xMarginMm;
-      const y = dimensions.height - yMarginMm - wordmarkHeight - 3; // 3mm spacing above margin
+      // Calculate dimensions (per FIP specs: 30mm wide, maintain aspect ratio)
+      const wordmarkWidth = 30; // mm (per FIP specs)
+      const aspectRatio = img.height / img.width;
+      const wordmarkHeight = wordmarkWidth * aspectRatio;
 
+      // Position according to FIP specifications
+      // FIP specs: 13mm from bottom edge, 38mm from left edge
+      const x = 38; // mm from left edge (per FIP specs)
+      const y = dimensions.height - 13 - wordmarkHeight; // 13mm from bottom edge
+
+      console.log('[DEBUG] Adding wordmark at position:', { x, y, wordmarkWidth, wordmarkHeight });
+      console.log('[DEBUG] Page dimensions:', dimensions);
+
+      // Add image directly (same method as department signature)
       pdf.addImage(img, 'PNG', x, y, wordmarkWidth, wordmarkHeight);
+      console.log('[DEBUG] Canada wordmark added successfully');
     } catch (error) {
       console.warn('Failed to load Canada wordmark:', error);
       // Continue without the wordmark if it fails to load

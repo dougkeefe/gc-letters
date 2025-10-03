@@ -172,7 +172,7 @@ This package helps create letters that comply with the Government of Canada's Fe
 - ✅ Department signature with flag symbol
 - ✅ Appropriate margins (38mm × 13mm default)
 - ✅ Bilingual support
-- ✅ Canada wordmark (in department signature)
+- ✅ Canada wordmark (included automatically in the package)
 
 **Read the [FIP Compliance Guide](./docs/FIP_COMPLIANCE.md) for detailed requirements.**
 
@@ -315,3 +315,7 @@ Built with:
 ---
 
 Made with 🍁 for the Government of Canada
+
+## Disclaimer
+
+**This project is currently a proof of concept and is not officially endorsed as a Government of Canada tool.** While it aims to help generate FIP-compliant letters, it should be used for development and testing purposes only. Organizations should conduct their own compliance reviews before using this package in production environments.

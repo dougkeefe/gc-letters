@@ -30,7 +30,7 @@ function App() {
             className={activeTab === 'basic' ? 'active' : ''}
             onClick={() => setActiveTab('basic')}
           >
-            Basic Example
+            FIP-Compliant Letter
           </button>
           <button
             className={activeTab === 'multipage' ? 'active' : ''}
@@ -66,38 +66,110 @@ function BasicExample({
 }) {
   return (
     <div>
-      <h2>Basic Letter Example</h2>
-      <p>Demonstrates minimal setup with required props and simple markdown content.</p>
+      <h2>FIP-Compliant Letter Example</h2>
+      <p>A complete example demonstrating Federal Identity Program (FIP) standards with realistic government correspondence about open source software adoption.</p>
+
+      <div className="info-box">
+        <h3>FIP Elements Demonstrated:</h3>
+        <ul>
+          <li>✅ Department signature (Veterans Affairs Canada)</li>
+          <li>✅ Canada wordmark (bottom left, first page only)</li>
+          <li>✅ Letter tracking number (VAC-DPI-2024-003)</li>
+          <li>✅ Proper margins and typography (Helvetica font)</li>
+          <li>✅ Professional government letter format</li>
+        </ul>
+      </div>
 
       <button
         className="download-button"
         onClick={() => download?.()}
         disabled={!download}
       >
-        Download Basic Letter PDF
+        Download FIP-Compliant Letter PDF
       </button>
 
       <GcLetter
-        fileName="basic-letter"
+        fileName="open-source-initiative"
         deptSignature="/veterans-affairs-signature.png"
-        canadaWordmarkPath="../assets/Canada_wordmark.png"
+        showLetterNumber={false}
+        letterNumber="VAC-DPI-2024-003"
+        letterNumberLocation="footer"
+        letterNumberAlignment="left"
+        showPageNumbers={'skip-first'}
+
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
-        <LetterBlock content={`# Basic Letter
+        <LetterBlock content={`**Veterans Affairs Canada**
 
-[Date: ${new Date().toLocaleDateString()}]
+**Digital Policy and Innovation**
 
-Dear Recipient,
+${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
 
-This is a basic example of a letter generated using the gc-letters package.
+Dr. Sarah Chen
+Director, Technology Modernization
+Veterans Affairs Canada
+66 Slater Street
+Ottawa, ON K1A 0P4`} />
 
-The letter contains simple markdown formatting including **bold text** and *italic text*.
+        <LetterBlock content={`Dear Dr. Chen,
 
-Thank you for your attention.
+**Re: Approval of Open Source Software Initiative**
 
-Sincerely,
+I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`} />
 
-Department Representative`} />
+        <LetterBlock content={`## Initiative Overview
+
+Your initiative demonstrates exceptional alignment with the Government of Canada's Digital Standards and the Treasury Board Directive on Service and Digital. By embracing open source principles, we will:
+
+- **Increase transparency** in how we deliver digital services to veterans
+- **Reduce costs** through shared development and reusable code
+- **Improve security** through community peer review and faster vulnerability patching
+- **Foster innovation** by enabling collaboration across departments`} />
+
+        <LetterBlock content={`## Approved Activities
+
+The following activities have been approved for immediate implementation:
+
+1. **Open Source Licensing**: All new software projects will use approved open source licenses (MIT, Apache 2.0, or GPL v3)
+2. **Public Code Repositories**: Non-sensitive code will be published on GitHub under the @veterans-affairs-canada organization
+3. **Community Engagement**: Developers are authorized to participate in relevant open source communities during work hours
+4. **Documentation Standards**: All projects will maintain comprehensive README files and contribution guidelines`} />
+
+        <SeparatorLine />
+
+        <LetterBlock content={`## Budget Allocation
+
+An annual budget of **$250,000** has been allocated to support:
+
+- Open source tool licensing and hosting
+- Developer training and certification programs
+- Community event participation
+- External contributor recognition and rewards`} />
+
+        <LetterBlock content={`## Next Steps
+
+Please proceed with the following:
+
+1. Establish the Open Source Program Office by March 31, 2025
+2. Develop internal contribution guidelines aligned with TBS policies
+3. Provide quarterly reports on adoption metrics and community engagement
+4. Schedule a department-wide information session on open source best practices`} />
+
+        <LetterBlock content={`This initiative represents a significant step forward in modernizing our digital infrastructure while maintaining the highest standards of security and privacy for veterans' information.
+
+Congratulations to you and your team on this important achievement. I look forward to seeing the positive impact of this work on veterans and their families.`} />
+
+        <LetterBlock content={`Sincerely,
+
+**Jean-Marc Dubois**
+*Assistant Deputy Minister*
+Digital Policy and Innovation
+Veterans Affairs Canada
+
+**cc:**
+Chief Information Officer
+Director General, Service Delivery
+Privacy Commissioner`} textAlign="left" allowPagebreak={false} />
       </GcLetter>
     </div>
   );
@@ -127,7 +199,6 @@ function MultiPageExample({
       <GcLetter
         fileName="multi-page-letter"
         deptSignature="/veterans-affairs-signature.png"
-        canadaWordmarkPath="../assets/Canada_wordmark.png"
         showPageNumbers="skip-first"
         pageNumberFormat="Page #"
         pageNumberLocation="footer"
@@ -137,7 +208,7 @@ function MultiPageExample({
         nextPageNumberLocation="footer"
         nextPageNumberAlignment="right"
         letterNumber="2024-GC-00123"
-        showLetterNumber={true}
+        showLetterNumber={false}
         letterNumberLocation="footer"
         letterNumberAlignment="left"
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
@@ -217,7 +288,6 @@ function CustomFormattingExample({
       <GcLetter
         fileName="custom-formatted-letter"
         deptSignature="/veterans-affairs-signature.png"
-        canadaWordmarkPath="../assets/Canada_wordmark.png"
         fontFace="Helvetica"
         textSizeNormal="12pt"
         textSizeHeading1="18pt"

@@ -81,6 +81,89 @@ const getAlignedXPosition = (
 };
 
 /**
+ * Process inline markdown formatting (bold, italic)
+ */
+const processInlineFormatting = (text: string): string => {
+  // Remove markdown syntax - jsPDF doesn't support it
+  // We'll just strip the markers for now since jsPDF has limited text styling per line
+  let processed = text;
+
+  // Remove bold markers
+  processed = processed.replace(/\*\*(.+?)\*\*/g, '$1');
+
+  // Remove italic markers
+  processed = processed.replace(/\*(.+?)\*/g, '$1');
+
+  return processed;
+};
+
+/**
+ * Render text with inline formatting
+ * For now, this is simplified - jsPDF has limitations with inline styles
+ */
+const renderTextWithFormatting = (
+  pdf: jsPDF,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number
+): void => {
+  // Check if text has bold formatting
+  const hasBold = /\*\*(.+?)\*\*/.test(text);
+
+  if (hasBold) {
+    // If entire text is bold, render as bold
+    if (text.startsWith('**') && text.endsWith('**')) {
+      const cleanText = text.replace(/\*\*/g, '');
+      pdf.setFont(pdf.getFont().fontName, 'bold');
+      pdf.text(cleanText, x, y);
+      pdf.setFont(pdf.getFont().fontName, 'normal');
+    } else {
+      // Mixed formatting - render segments
+      const segments: Array<{ text: string; bold: boolean }> = [];
+      let remaining = text;
+      let currentX = x;
+
+      while (remaining.length > 0) {
+        const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+        if (boldMatch && boldMatch.index !== undefined) {
+          // Add text before bold
+          if (boldMatch.index > 0) {
+            segments.push({
+              text: remaining.substring(0, boldMatch.index),
+              bold: false,
+            });
+          }
+          // Add bold text
+          segments.push({ text: boldMatch[1], bold: true });
+          remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
+        } else {
+          // No more bold text
+          segments.push({ text: remaining, bold: false });
+          break;
+        }
+      }
+
+      // Render segments
+      segments.forEach((segment) => {
+        pdf.setFont(
+          pdf.getFont().fontName,
+          segment.bold ? 'bold' : 'normal'
+        );
+        pdf.text(segment.text, currentX, y);
+        currentX += pdf.getTextWidth(segment.text);
+      });
+
+      pdf.setFont(pdf.getFont().fontName, 'normal');
+    }
+  } else {
+    // No formatting, render normally
+    const cleanText = processInlineFormatting(text);
+    pdf.text(cleanText, x, y);
+  }
+};
+
+/**
  * Render a paragraph
  */
 export const renderParagraph = (
@@ -101,6 +184,7 @@ export const renderParagraph = (
   pdf.setFontSize(fontSizeNormal);
   pdf.setFont(pdf.getFont().fontName, 'normal');
 
+  // Process text for wrapping, but keep formatting markers
   const lines = pdf.splitTextToSize(text, maxWidth);
   const lineHeightMm = lineSpacing;
 
@@ -108,8 +192,9 @@ export const renderParagraph = (
     const xPos = getAlignedXPosition(pdf, line, x, maxWidth, textAlign);
 
     if (textAlign === 'full' && index < lines.length - 1) {
-      // Justify text (except last line)
-      const words = line.split(' ');
+      // Justify text (except last line) - simplified, no inline formatting
+      const cleanLine = processInlineFormatting(line);
+      const words = cleanLine.split(' ');
       if (words.length > 1) {
         const totalTextWidth = words.reduce(
           (sum, word) => sum + pdf.getTextWidth(word),
@@ -125,7 +210,8 @@ export const renderParagraph = (
       }
     }
 
-    pdf.text(line, xPos, y + index * lineHeightMm);
+    // Render with inline formatting support
+    renderTextWithFormatting(pdf, line, xPos, y + index * lineHeightMm, maxWidth);
   });
 
   return y + lines.length * lineHeightMm + paragraphSpacing;
@@ -169,7 +255,9 @@ export const renderHeading = (
   pdf.setFontSize(fontSize);
   pdf.setFont(pdf.getFont().fontName, 'bold');
 
-  const lines = pdf.splitTextToSize(text, maxWidth);
+  // Clean markdown formatting from heading text
+  const cleanText = processInlineFormatting(text);
+  const lines = pdf.splitTextToSize(cleanText, maxWidth);
   const lineHeight = pdf.getLineHeight() / pdf.internal.scaleFactor;
 
   lines.forEach((line: string, index: number) => {
@@ -206,8 +294,14 @@ export const renderListItem = (
   const lines = pdf.splitTextToSize(text, textMaxWidth);
   const lineHeightMm = lineSpacing;
 
-  lines.forEach((line: string, index: number) => {
-    pdf.text(line, x + indent + bulletWidth, y + index * lineHeightMm);
+  lines.forEach((line: string, lineIndex: number) => {
+    renderTextWithFormatting(
+      pdf,
+      line,
+      x + indent + bulletWidth,
+      y + lineIndex * lineHeightMm,
+      textMaxWidth
+    );
   });
 
   return y + lines.length * lineHeightMm;

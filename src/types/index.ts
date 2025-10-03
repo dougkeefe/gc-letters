@@ -70,7 +70,10 @@ export interface LetterBlockProps {
   textAlign?: TextAlign;
 }
 
-export interface SeparatorLineProps {}
+export interface SeparatorLineProps {
+  topMargin?: string;
+  bottomMargin?: string;
+}
 
 export interface LetterContext {
   pageType: PageType;
