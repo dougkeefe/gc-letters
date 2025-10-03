@@ -22,7 +22,9 @@ describe('SeparatorLine', () => {
 
     it('should render with data attribute', () => {
       const { container } = renderInLetter(<SeparatorLine />);
-      expect(container.querySelector('[data-component="separator-line"]')).toBeTruthy();
+      expect(
+        container.querySelector('[data-component="separator-line"]')
+      ).toBeTruthy();
     });
   });
 
@@ -35,8 +37,12 @@ describe('SeparatorLine', () => {
           <LetterBlock content="Second section" />
         </GcLetter>
       );
-      expect(container.querySelector('[data-component="separator-line"]')).toBeTruthy();
-      expect(container.querySelectorAll('[data-component="letter-block"]')).toHaveLength(2);
+      expect(
+        container.querySelector('[data-component="separator-line"]')
+      ).toBeTruthy();
+      expect(
+        container.querySelectorAll('[data-component="letter-block"]')
+      ).toHaveLength(2);
     });
 
     it('should render multiple separator lines', () => {
@@ -49,7 +55,9 @@ describe('SeparatorLine', () => {
           <LetterBlock content="Section 3" />
         </GcLetter>
       );
-      expect(container.querySelectorAll('[data-component="separator-line"]')).toHaveLength(2);
+      expect(
+        container.querySelectorAll('[data-component="separator-line"]')
+      ).toHaveLength(2);
     });
   });
 

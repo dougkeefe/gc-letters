@@ -33,7 +33,9 @@ describe('GcLetter', () => {
           <div data-testid="child-component">Child</div>
         </GcLetter>
       );
-      expect(container.querySelector('[data-testid="child-component"]')).toBeTruthy();
+      expect(
+        container.querySelector('[data-testid="child-component"]')
+      ).toBeTruthy();
     });
   });
 
@@ -44,10 +46,7 @@ describe('GcLetter', () => {
 
       expect(() => {
         render(
-          <GcLetter
-            fileName=""
-            deptSignature="https://example.com/sig.png"
-          >
+          <GcLetter fileName="" deptSignature="https://example.com/sig.png">
             <LetterBlock content="Test" />
           </GcLetter>
         );
@@ -61,10 +60,7 @@ describe('GcLetter', () => {
 
       expect(() => {
         render(
-          <GcLetter
-            fileName="test"
-            deptSignature=""
-          >
+          <GcLetter fileName="test" deptSignature="">
             <LetterBlock content="Test" />
           </GcLetter>
         );

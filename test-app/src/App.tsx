@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { GcLetter, LetterBlock, SeparatorLine } from 'gc-letters';
 
-type ExampleTab = 'basic' | 'multipage' | 'custom';
+type ExampleTab = 'basic' | 'multipage' | 'custom' | 'table';
 
 function App() {
   const [activeTab, setActiveTab] = useState<ExampleTab>('basic');
   const [basicDownload, setBasicDownload] = useState<(() => void) | null>(null);
   const [multipageDownload, setMultipageDownload] = useState<(() => void) | null>(null);
   const [customDownload, setCustomDownload] = useState<(() => void) | null>(null);
+  const [tableDownload, setTableDownload] = useState<(() => void) | null>(null);
 
   return (
     <div>
@@ -44,12 +45,19 @@ function App() {
           >
             Custom Formatting
           </button>
+          <button
+            className={activeTab === 'table' ? 'active' : ''}
+            onClick={() => setActiveTab('table')}
+          >
+            Markdown Table
+          </button>
         </div>
 
         <div className="example-container">
           {activeTab === 'basic' && <BasicExample onReady={setBasicDownload} download={basicDownload} />}
           {activeTab === 'multipage' && <MultiPageExample onReady={setMultipageDownload} download={multipageDownload} />}
           {activeTab === 'custom' && <CustomFormattingExample onReady={setCustomDownload} download={customDownload} />}
+          {activeTab === 'table' && <TableExample onReady={setTableDownload} download={tableDownload} />}
         </div>
       </div>
     </div>
@@ -358,6 +366,100 @@ Sincerely,
 
 Design Team`}
         />
+      </GcLetter>
+    </div>
+  );
+}
+
+// Table Example Component
+function TableExample({
+  onReady,
+  download
+}: {
+  onReady: (fn: (() => void) | null) => void;
+  download: (() => void) | null;
+}) {
+  return (
+    <div>
+      <h2>Markdown Table Example</h2>
+      <p>Demonstrates markdown table rendering within a GcLetter component.</p>
+
+      <button
+        className="download-button"
+        onClick={() => download?.()}
+        disabled={!download}
+      >
+        Download Table Example PDF
+      </button>
+
+      <GcLetter
+        fileName="table-example"
+        deptSignature="/veterans-affairs-signature.png"
+        showPageNumbers="skip-first"
+        pageNumberFormat="Page #"
+        pageNumberLocation="footer"
+        pageNumberAlignment="center"
+        onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
+      >
+        <LetterBlock content={`# Budget Report FY 2024-2025
+
+**Veterans Affairs Canada**
+**Financial Planning Division**
+
+${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}`} />
+
+        <SeparatorLine />
+
+        <LetterBlock content={`## Quarterly Budget Allocation
+
+The following table outlines the approved budget allocation across our key program areas for the current fiscal year:`} />
+
+        <LetterBlock content={`| Program Area | Q1 Budget | Q2 Budget | Q3 Budget | Q4 Budget | Total |
+|--------------|-----------|-----------|-----------|-----------|-------|
+| Veterans Services | $2.5M | $2.8M | $3.1M | $2.6M | $11.0M |
+| Healthcare Support | $4.2M | $4.5M | $4.8M | $4.3M | $17.8M |
+| Digital Transformation | $1.8M | $2.1M | $2.3M | $1.9M | $8.1M |
+| Research & Development | $0.9M | $1.2M | $1.4M | $1.0M | $4.5M |
+| Administrative | $1.1M | $1.0M | $1.2M | $1.1M | $4.4M |
+| **Total** | **$10.5M** | **$11.6M** | **$12.8M** | **$10.9M** | **$45.8M** |`} />
+
+        <LetterBlock content={`## Regional Distribution
+
+Budget allocation by regional office:`} />
+
+        <LetterBlock content={`| Region | Allocation | Percentage |
+|--------|------------|------------|
+| Atlantic | $8.2M | 18% |
+| Quebec | $12.4M | 27% |
+| Ontario | $15.6M | 34% |
+| Prairies | $5.8M | 13% |
+| Pacific | $3.8M | 8% |
+| **Total** | **$45.8M** | **100%** |`} />
+
+        <SeparatorLine topMargin="8mm" bottomMargin="8mm" />
+
+        <LetterBlock content={`## Key Performance Indicators
+
+Current quarter performance metrics:`} />
+
+        <LetterBlock content={`| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Service Response Time | < 48hrs | 36hrs | ✅ Met |
+| Client Satisfaction | > 85% | 89% | ✅ Exceeded |
+| Budget Utilization | 90-95% | 93% | ✅ On Track |
+| Digital Adoption | > 70% | 68% | ⚠️ Below Target |`} />
+
+        <LetterBlock content={`## Summary
+
+The budget allocation for FY 2024-2025 reflects our commitment to delivering exceptional services to Canadian veterans while investing in digital transformation and innovation.
+
+For questions regarding this report, please contact the Financial Planning Division.
+
+**Approved by:**
+
+**Michelle Tremblay**
+*Director, Financial Planning*
+Veterans Affairs Canada`} textAlign="left" />
       </GcLetter>
     </div>
   );

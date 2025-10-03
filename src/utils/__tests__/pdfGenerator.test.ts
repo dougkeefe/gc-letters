@@ -60,7 +60,9 @@ describe('pdfGenerator', () => {
 
     it('should create PDF in portrait orientation', () => {
       const pdf = createPDF('letter');
-      expect(pdf.internal.pageSize.width).toBeLessThan(pdf.internal.pageSize.height);
+      expect(pdf.internal.pageSize.width).toBeLessThan(
+        pdf.internal.pageSize.height
+      );
     });
   });
 
@@ -186,7 +188,13 @@ describe('pdfGenerator', () => {
 
     it('should calculate center position', () => {
       const textWidth = 50;
-      const x = getAlignedX('center', pageWidth, leftMargin, rightMargin, textWidth);
+      const x = getAlignedX(
+        'center',
+        pageWidth,
+        leftMargin,
+        rightMargin,
+        textWidth
+      );
       const availableWidth = pageWidth - leftMargin - rightMargin;
       const expected = leftMargin + (availableWidth - textWidth) / 2;
       expect(x).toBeCloseTo(expected, 2);
@@ -194,13 +202,24 @@ describe('pdfGenerator', () => {
 
     it('should calculate right position', () => {
       const textWidth = 50;
-      const x = getAlignedX('right', pageWidth, leftMargin, rightMargin, textWidth);
+      const x = getAlignedX(
+        'right',
+        pageWidth,
+        leftMargin,
+        rightMargin,
+        textWidth
+      );
       const expected = pageWidth - rightMargin - textWidth;
       expect(x).toBeCloseTo(expected, 2);
     });
 
     it('should default to left alignment for unknown alignment', () => {
-      const x = getAlignedX('unknown' as Alignment, pageWidth, leftMargin, rightMargin);
+      const x = getAlignedX(
+        'unknown' as Alignment,
+        pageWidth,
+        leftMargin,
+        rightMargin
+      );
       expect(x).toBe(leftMargin);
     });
 
@@ -223,14 +242,38 @@ describe('pdfGenerator', () => {
 
     it('should replace # with page number', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
-      renderPageNumber(mockPdf, 3, 'Page #', 'header', 'center', 215.9, 279.4, 38, 13);
-      expect(textSpy).toHaveBeenCalledWith('Page 3', expect.any(Number), expect.any(Number));
+      renderPageNumber(
+        mockPdf,
+        3,
+        'Page #',
+        'header',
+        'center',
+        215.9,
+        279.4,
+        38,
+        13
+      );
+      expect(textSpy).toHaveBeenCalledWith(
+        'Page 3',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('should render in header location', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       const yMargin = 13;
-      renderPageNumber(mockPdf, 1, '-#-', 'header', 'center', 215.9, 279.4, 38, yMargin);
+      renderPageNumber(
+        mockPdf,
+        1,
+        '-#-',
+        'header',
+        'center',
+        215.9,
+        279.4,
+        38,
+        yMargin
+      );
       const yPos = textSpy.mock.calls[0][2];
       expect(yPos).toBe(yMargin / 2);
     });
@@ -239,7 +282,17 @@ describe('pdfGenerator', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       const pageHeight = 279.4;
       const yMargin = 13;
-      renderPageNumber(mockPdf, 1, '-#-', 'footer', 'center', 215.9, pageHeight, 38, yMargin);
+      renderPageNumber(
+        mockPdf,
+        1,
+        '-#-',
+        'footer',
+        'center',
+        215.9,
+        pageHeight,
+        38,
+        yMargin
+      );
       const yPos = textSpy.mock.calls[0][2];
       expect(yPos).toBe(pageHeight - yMargin / 2);
     });
@@ -247,21 +300,51 @@ describe('pdfGenerator', () => {
     it('should handle left alignment', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       const xMargin = 38;
-      renderPageNumber(mockPdf, 1, '-#-', 'header', 'left', 215.9, 279.4, xMargin, 13);
+      renderPageNumber(
+        mockPdf,
+        1,
+        '-#-',
+        'header',
+        'left',
+        215.9,
+        279.4,
+        xMargin,
+        13
+      );
       const xPos = textSpy.mock.calls[0][1];
       expect(xPos).toBe(xMargin);
     });
 
     it('should handle center alignment', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
-      renderPageNumber(mockPdf, 1, '-#-', 'header', 'center', 215.9, 279.4, 38, 13);
+      renderPageNumber(
+        mockPdf,
+        1,
+        '-#-',
+        'header',
+        'center',
+        215.9,
+        279.4,
+        38,
+        13
+      );
       // X position should be centered (calculated based on page width and text width)
       expect(textSpy).toHaveBeenCalled();
     });
 
     it('should handle right alignment', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
-      renderPageNumber(mockPdf, 1, '-#-', 'header', 'right', 215.9, 279.4, 38, 13);
+      renderPageNumber(
+        mockPdf,
+        1,
+        '-#-',
+        'header',
+        'right',
+        215.9,
+        279.4,
+        38,
+        13
+      );
       // X position should be right-aligned
       expect(textSpy).toHaveBeenCalled();
     });

@@ -47,9 +47,11 @@ describe('Typography Settings', () => {
 
     // Effective settings (block overrides document)
     const effective = {
-      textSizeNormal: blockSettings.textSizeNormal || documentSettings.textSizeNormal,
+      textSizeNormal:
+        blockSettings.textSizeNormal || documentSettings.textSizeNormal,
       lineSpacing: blockSettings.lineSpacing || documentSettings.lineSpacing,
-      paragraphSpacing: blockSettings.paragraphSpacing || documentSettings.paragraphSpacing,
+      paragraphSpacing:
+        blockSettings.paragraphSpacing || documentSettings.paragraphSpacing,
       textAlign: blockSettings.textAlign || documentSettings.textAlign,
     };
 

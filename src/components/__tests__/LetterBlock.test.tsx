@@ -108,11 +108,7 @@ Final paragraph text.
 
     it('should accept custom spacing overrides', () => {
       const { container } = renderInLetter(
-        <LetterBlock
-          content="Test"
-          paragraphSpacing="15mm"
-          lineSpacing="8mm"
-        />
+        <LetterBlock content="Test" paragraphSpacing="15mm" lineSpacing="8mm" />
       );
       expect(container).toBeTruthy();
     });
@@ -125,7 +121,12 @@ Final paragraph text.
     });
 
     it('should accept all alignment options', () => {
-      const alignments: Array<'left' | 'right' | 'center' | 'full'> = ['left', 'right', 'center', 'full'];
+      const alignments: Array<'left' | 'right' | 'center' | 'full'> = [
+        'left',
+        'right',
+        'center',
+        'full',
+      ];
 
       alignments.forEach((align) => {
         const { container } = renderInLetter(
@@ -153,7 +154,9 @@ Final paragraph text.
 
     it('should default allowPagebreak to true', () => {
       const { container } = renderInLetter(<LetterBlock content="Test" />);
-      expect(container.querySelector('[data-allow-pagebreak="true"]')).toBeTruthy();
+      expect(
+        container.querySelector('[data-allow-pagebreak="true"]')
+      ).toBeTruthy();
     });
   });
 
@@ -182,7 +185,9 @@ Final paragraph text.
           </LetterBlock>
         );
       } catch (error) {
-        expect((error as Error).message).toContain('must be a direct child of GcLetter');
+        expect((error as Error).message).toContain(
+          'must be a direct child of GcLetter'
+        );
       }
 
       consoleSpy.mockRestore();
@@ -198,7 +203,9 @@ Final paragraph text.
           <LetterBlock content="Third block" />
         </GcLetter>
       );
-      expect(container.querySelectorAll('[data-component="letter-block"]')).toHaveLength(3);
+      expect(
+        container.querySelectorAll('[data-component="letter-block"]')
+      ).toHaveLength(3);
     });
 
     it('should render LetterBlocks with different typography', () => {
@@ -209,7 +216,9 @@ Final paragraph text.
           <LetterBlock content="Right aligned" textAlign="right" />
         </GcLetter>
       );
-      expect(container.querySelectorAll('[data-component="letter-block"]')).toHaveLength(3);
+      expect(
+        container.querySelectorAll('[data-component="letter-block"]')
+      ).toHaveLength(3);
     });
   });
 
@@ -226,9 +235,7 @@ Final paragraph text.
     });
 
     it('should handle content with many paragraphs', () => {
-      const manyParagraphs = Array(50)
-        .fill('Paragraph content.')
-        .join('\n\n');
+      const manyParagraphs = Array(50).fill('Paragraph content.').join('\n\n');
 
       const { container } = renderInLetter(
         <LetterBlock content={manyParagraphs} />

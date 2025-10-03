@@ -5,6 +5,7 @@ export type TextAlign = 'left' | 'right' | 'center' | 'full';
 export type HeaderFooterLocation = 'header' | 'footer';
 export type Alignment = 'left' | 'center' | 'right';
 export type ShowPageNumbers = boolean | 'skip-first';
+export type TableTheme = 'striped' | 'grid' | 'plain';
 
 export interface GcLetterProps {
   // Required
@@ -68,6 +69,12 @@ export interface LetterBlockProps {
   textSizeHeading2?: string;
   textSizeHeading3?: string;
   textAlign?: TextAlign;
+
+  // Table styling (when block contains markdown table)
+  tableTheme?: TableTheme;
+  tableHeaderBold?: boolean;
+  tableHeaderFillColor?: [number, number, number] | false;
+  tableBorderColor?: [number, number, number];
 }
 
 export interface SeparatorLineProps {

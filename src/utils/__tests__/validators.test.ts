@@ -36,7 +36,9 @@ describe('validators', () => {
     });
 
     it('should accept valid relative paths', () => {
-      expect(() => validateDeptSignature('/images/signature.png')).not.toThrow();
+      expect(() =>
+        validateDeptSignature('/images/signature.png')
+      ).not.toThrow();
       expect(() => validateDeptSignature('./signature.png')).not.toThrow();
     });
 

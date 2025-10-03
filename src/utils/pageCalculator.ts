@@ -55,7 +55,10 @@ export const shouldBreakPage = (
   return currentY + contentHeight > pageHeight - bottomMargin;
 };
 
-export const getLineHeight = (fontSize: string, lineSpacing?: string): number => {
+export const getLineHeight = (
+  fontSize: string,
+  lineSpacing?: string
+): number => {
   const fontSizeMm = convertToMm(fontSize);
   if (lineSpacing) {
     return convertToMm(lineSpacing);

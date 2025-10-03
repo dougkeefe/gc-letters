@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import { GcLetterProps } from '../types';
-import { createPDF, getPageDimensions, downloadPDF } from '../utils/pdfGenerator';
+import {
+  createPDF,
+  getPageDimensions,
+  downloadPDF,
+} from '../utils/pdfGenerator';
 import { convertToMm, shouldBreakPage } from '../utils/pageCalculator';
 import {
   validateFileName,
@@ -14,6 +18,7 @@ import {
   renderParagraph,
   renderHeading,
   renderListItem,
+  renderTable,
 } from '../utils/markdownParser';
 import { CANADA_WORDMARK_BASE64 } from '../assets/canadaWordmark';
 
@@ -66,65 +71,69 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
     // Async rendering function
     const renderPDF = async () => {
-    // Validate required props
-    validateFileName(fileName);
-    validateDeptSignature(deptSignature);
+      // Validate required props
+      validateFileName(fileName);
+      validateDeptSignature(deptSignature);
 
-    // Validate optional formats if provided
-    if (showPageNumbers && pageNumberFormat) {
-      validatePageNumberFormat(pageNumberFormat);
-    }
-    if (showNextPage && nextPageNumberFormat) {
-      validateNextPageFormat(nextPageNumberFormat);
-    }
-
-    // Initialize PDF
-    const pdf = createPDF(pageType);
-    pdfRef.current = pdf;
-
-    const topMargin = convertToMm(yMargin);
-    let y = topMargin;
-
-    // Set default font
-    pdf.setFont(fontFace);
-    pdf.setFontSize(convertToMm(textSizeNormal));
-
-    // Render initial page elements
-    renderPageElements(pdf, 1);
-
-    // Render department signature at top
-    const signatureHeight = await renderDepartmentSignature(pdf);
-    y = topMargin + signatureHeight + 10; // Add spacing after signature
-
-    // Render Canada wordmark on first page (bottom left)
-    if (showCanadaWordmark) {
-      await renderCanadaWordmark(pdf, 1);
-    }
-
-    // Process children sequentially
-    React.Children.forEach(children, (child) => {
-      if (!React.isValidElement(child)) return;
-
-      // Handle LetterBlock components
-      if (child.type && (child.type as any).name === 'LetterBlock') {
-        const props = child.props as any;
-        // Render LetterBlock content directly here
-        y = renderLetterBlockContent(pdf, y, props);
+      // Validate optional formats if provided
+      if (showPageNumbers && pageNumberFormat) {
+        validatePageNumberFormat(pageNumberFormat);
       }
-      // Handle SeparatorLine components
-      else if (child.type && (child.type as any).name === 'SeparatorLine') {
-        const props = child.props as any;
-        y = renderSeparatorLineContent(pdf, y, props);
+      if (showNextPage && nextPageNumberFormat) {
+        validateNextPageFormat(nextPageNumberFormat);
       }
-    });
 
-    // Provide download function to parent via callback
-    if (onReady) {
-      const download = () => {
-        downloadPDF(pdf, fileName);
-      };
-      onReady(download);
-    }
+      // Initialize PDF
+      const pdf = createPDF(pageType);
+      pdfRef.current = pdf;
+
+      const topMargin = convertToMm(yMargin);
+      let y = topMargin;
+
+      // Set default font
+      pdf.setFont(fontFace);
+      pdf.setFontSize(convertToMm(textSizeNormal));
+
+      // Render initial page elements
+      renderPageElements(pdf, 1);
+
+      // Render department signature at top
+      const signatureHeight = await renderDepartmentSignature(pdf);
+      y = topMargin + signatureHeight + 10; // Add spacing after signature
+
+      // Render Canada wordmark on first page (bottom left)
+      if (showCanadaWordmark) {
+        await renderCanadaWordmark(pdf, 1);
+      }
+
+      // Process children sequentially
+      React.Children.forEach(children, (child) => {
+        if (!React.isValidElement(child)) return;
+
+        // Handle LetterBlock components
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (child.type && (child.type as any).name === 'LetterBlock') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const props = child.props as any;
+          // Render LetterBlock content directly here
+          y = renderLetterBlockContent(pdf, y, props);
+        }
+        // Handle SeparatorLine components
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        else if (child.type && (child.type as any).name === 'SeparatorLine') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const props = child.props as any;
+          y = renderSeparatorLineContent(pdf, y, props);
+        }
+      });
+
+      // Provide download function to parent via callback
+      if (onReady) {
+        const download = () => {
+          downloadPDF(pdf, fileName);
+        };
+        onReady(download);
+      }
     };
 
     // Call the async render function
@@ -252,7 +261,11 @@ const GcLetter: React.FC<GcLetterProps> = ({
   };
 
   // Helper function to render LetterBlock content
-  const renderLetterBlockContent = (pdf: jsPDF, startY: number, props: any): number => {
+  const renderLetterBlockContent = (
+    pdf: jsPDF,
+    startY: number,
+    props: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): number => {
     const {
       content,
       children: blockChildren,
@@ -265,6 +278,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
       textSizeHeading2: blockTextSizeHeading2,
       textSizeHeading3: blockTextSizeHeading3,
       textAlign: blockTextAlign,
+      tableTheme: blockTableTheme,
+      tableHeaderBold: blockTableHeaderBold,
+      tableHeaderFillColor: blockTableHeaderFillColor,
+      tableBorderColor: blockTableBorderColor,
     } = props;
 
     // Use imported utilities (renamed convertToMm to avoid shadowing)
@@ -290,8 +307,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
       typeof content === 'string'
         ? content
         : typeof blockChildren === 'string'
-        ? blockChildren
-        : '';
+          ? blockChildren
+          : '';
 
     if (!markdownContent) return startY;
 
@@ -324,6 +341,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
       lineSpacing: toMm(effectiveLineSpacing),
       paragraphSpacing: toMm(effectiveParagraphSpacing),
       textAlign: effectiveTextAlign,
+      tableTheme: blockTableTheme,
+      tableHeaderBold: blockTableHeaderBold,
+      tableHeaderFillColor: blockTableHeaderFillColor,
+      tableBorderColor: blockTableBorderColor,
     };
 
     // Helper to calculate effective bottom margin (accounting for wordmark on first page)
@@ -345,10 +366,18 @@ const GcLetter: React.FC<GcLetterProps> = ({
     // If allowPagebreak is false, check if we need to start a new page before rendering
     if (!allowPagebreak) {
       // Estimate the height needed for this block (rough estimate)
-      const estimatedBlockHeight = toMm(effectiveLineSpacing) * tokens.length * 3;
+      const estimatedBlockHeight =
+        toMm(effectiveLineSpacing) * tokens.length * 3;
       const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
 
-      if (shouldBreakPage(y, estimatedBlockHeight, dimensions.height, effectiveBottomMargin)) {
+      if (
+        shouldBreakPage(
+          y,
+          estimatedBlockHeight,
+          dimensions.height,
+          effectiveBottomMargin
+        )
+      ) {
         // Start a new page to keep the entire block together
         y = addNewPage(pdf, pageNum);
         pageNum++;
@@ -357,11 +386,19 @@ const GcLetter: React.FC<GcLetterProps> = ({
     }
 
     // Render each token
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tokens.forEach((token: any) => {
       // Check if we need a page break before rendering
       const estimatedHeight = toMm(effectiveLineSpacing) * 3;
       const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
-      if (shouldBreakPage(y, estimatedHeight, dimensions.height, effectiveBottomMargin)) {
+      if (
+        shouldBreakPage(
+          y,
+          estimatedHeight,
+          dimensions.height,
+          effectiveBottomMargin
+        )
+      ) {
         if (allowPagebreak) {
           y = addNewPage(pdf, pageNum);
           pageNum++;
@@ -381,10 +418,22 @@ const GcLetter: React.FC<GcLetterProps> = ({
       } else if (token.type === 'heading') {
         renderContext.y = y;
         y = renderHeading(renderContext, token.text, token.depth);
+      } else if (token.type === 'table') {
+        renderContext.y = y;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        y = renderTable(renderContext, token as any);
       } else if (token.type === 'list') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         token.items.forEach((item: any, index: number) => {
           const effectiveBottomMargin = getEffectiveBottomMargin(pageNum);
-          if (shouldBreakPage(y, estimatedHeight, dimensions.height, effectiveBottomMargin)) {
+          if (
+            shouldBreakPage(
+              y,
+              estimatedHeight,
+              dimensions.height,
+              effectiveBottomMargin
+            )
+          ) {
             if (allowPagebreak) {
               y = addNewPage(pdf, pageNum);
               pageNum++;
@@ -406,12 +455,20 @@ const GcLetter: React.FC<GcLetterProps> = ({
   };
 
   // Helper function to render SeparatorLine content
-  const renderSeparatorLineContent = (pdf: jsPDF, startY: number, props: any = {}): number => {
+  const renderSeparatorLineContent = (
+    pdf: jsPDF,
+    startY: number,
+    props: any = {} // eslint-disable-line @typescript-eslint/no-explicit-any
+  ): number => {
     const { topMargin, bottomMargin } = props;
 
     const lineWidth = dimensions.width - 2 * xMarginMm;
-    const spacingBefore = topMargin ? convertToMm(topMargin) : convertToMm(paragraphSpacing); // Use standard paragraph spacing by default
-    const spacingAfter = bottomMargin ? convertToMm(bottomMargin) : convertToMm(paragraphSpacing) * 2; // Double spacing by default
+    const spacingBefore = topMargin
+      ? convertToMm(topMargin)
+      : convertToMm(paragraphSpacing); // Use standard paragraph spacing by default
+    const spacingAfter = bottomMargin
+      ? convertToMm(bottomMargin)
+      : convertToMm(paragraphSpacing) * 2; // Double spacing by default
     const lineThickness = 0.5; // mm
 
     const y = startY + spacingBefore;
@@ -462,7 +519,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
     console.log('[DEBUG] renderCanadaWordmark called for page', pageNum);
     console.log('[DEBUG] showCanadaWordmark:', showCanadaWordmark);
-    console.log('[DEBUG] canadaWordmarkPath:', canadaWordmarkPath?.substring(0, 50) + '...');
+    console.log(
+      '[DEBUG] canadaWordmarkPath:',
+      canadaWordmarkPath?.substring(0, 50) + '...'
+    );
 
     try {
       // Load the image
@@ -485,7 +545,12 @@ const GcLetter: React.FC<GcLetterProps> = ({
       const x = 38; // mm from left edge (per FIP specs)
       const y = dimensions.height - 13 - wordmarkHeight; // 13mm from bottom edge
 
-      console.log('[DEBUG] Adding wordmark at position:', { x, y, wordmarkWidth, wordmarkHeight });
+      console.log('[DEBUG] Adding wordmark at position:', {
+        x,
+        y,
+        wordmarkWidth,
+        wordmarkHeight,
+      });
       console.log('[DEBUG] Page dimensions:', dimensions);
 
       // Add image directly (same method as department signature)

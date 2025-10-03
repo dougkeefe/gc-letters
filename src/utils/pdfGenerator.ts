@@ -33,7 +33,9 @@ export const createPDF = (pageType: PageType): jsPDF => {
 export const downloadPDF = (pdf: jsPDF, fileName: string): void => {
   try {
     // Ensure fileName has .pdf extension
-    const pdfFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+    const pdfFileName = fileName.endsWith('.pdf')
+      ? fileName
+      : `${fileName}.pdf`;
 
     // Trigger download
     pdf.save(pdfFileName);
@@ -55,7 +57,11 @@ export const loadImage = (url: string): Promise<HTMLImageElement> => {
 
     img.onerror = () => {
       console.error(`Failed to load image from: ${url}`);
-      reject(new Error(`Failed to load department signature image from ${url}. Please check the URL and ensure the image is accessible.`));
+      reject(
+        new Error(
+          `Failed to load department signature image from ${url}. Please check the URL and ensure the image is accessible.`
+        )
+      );
     };
 
     img.src = url;
@@ -76,7 +82,9 @@ export const addImageToPDF = (
         pdf.addImage(img, 'PNG', x, y, width, height);
       } catch (error) {
         console.error('Error adding image to PDF:', error);
-        throw new Error('Failed to add image to PDF. The image format may not be supported.');
+        throw new Error(
+          'Failed to add image to PDF. The image format may not be supported.'
+        );
       }
     })
     .catch((error) => {

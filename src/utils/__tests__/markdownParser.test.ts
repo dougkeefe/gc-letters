@@ -79,7 +79,8 @@ describe('markdownParser', () => {
     });
 
     it('should handle long text with wrapping', () => {
-      const longText = 'This is a very long paragraph that will definitely need to be wrapped across multiple lines to fit within the maximum width constraint.';
+      const longText =
+        'This is a very long paragraph that will definitely need to be wrapped across multiple lines to fit within the maximum width constraint.';
       const newY = renderParagraph(mockContext, longText);
       // Should span multiple lines
       expect(newY).toBeGreaterThan(mockContext.y + mockContext.lineSpacing);
@@ -115,7 +116,10 @@ describe('markdownParser', () => {
     it('should handle full justification', () => {
       mockContext.textAlign = 'full';
       const textSpy = jest.spyOn(mockPdf, 'text');
-      renderParagraph(mockContext, 'This is a longer text that needs justification');
+      renderParagraph(
+        mockContext,
+        'This is a longer text that needs justification'
+      );
       expect(textSpy).toHaveBeenCalled();
     });
   });
@@ -157,7 +161,8 @@ describe('markdownParser', () => {
     });
 
     it('should handle long headings with wrapping', () => {
-      const longHeading = 'This is a very long heading that will need to wrap across multiple lines';
+      const longHeading =
+        'This is a very long heading that will need to wrap across multiple lines';
       const newY = renderHeading(mockContext, longHeading, 1);
       expect(newY).toBeGreaterThan(mockContext.y);
     });
@@ -175,21 +180,33 @@ describe('markdownParser', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       renderListItem(mockContext, 'List item', false, 0);
       // Should render bullet
-      expect(textSpy).toHaveBeenCalledWith('•', expect.any(Number), expect.any(Number));
+      expect(textSpy).toHaveBeenCalledWith(
+        '•',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('should render ordered list item with number', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       renderListItem(mockContext, 'List item', true, 0);
       // Should render "1."
-      expect(textSpy).toHaveBeenCalledWith('1.', expect.any(Number), expect.any(Number));
+      expect(textSpy).toHaveBeenCalledWith(
+        '1.',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('should increment ordered list numbers', () => {
       const textSpy = jest.spyOn(mockPdf, 'text');
       renderListItem(mockContext, 'Second item', true, 1);
       // Should render "2."
-      expect(textSpy).toHaveBeenCalledWith('2.', expect.any(Number), expect.any(Number));
+      expect(textSpy).toHaveBeenCalledWith(
+        '2.',
+        expect.any(Number),
+        expect.any(Number)
+      );
     });
 
     it('should return updated Y position', () => {
@@ -198,10 +215,13 @@ describe('markdownParser', () => {
     });
 
     it('should handle long list items with wrapping', () => {
-      const longItem = 'This is a very long list item that will need to wrap across multiple lines to fit within the available space';
+      const longItem =
+        'This is a very long list item that will need to wrap across multiple lines to fit within the available space';
       const newY = renderListItem(mockContext, longItem, false, 0);
       // Should at least move Y position by line spacing
-      expect(newY).toBeGreaterThanOrEqual(mockContext.y + mockContext.lineSpacing);
+      expect(newY).toBeGreaterThanOrEqual(
+        mockContext.y + mockContext.lineSpacing
+      );
     });
 
     it('should set normal font size', () => {
@@ -215,7 +235,7 @@ describe('markdownParser', () => {
       renderListItem(mockContext, 'Item', false, 0);
       // Text should be rendered with indent (x > original x)
       const calls = textSpy.mock.calls;
-      expect(calls.some(call => call[1] > mockContext.x)).toBe(true);
+      expect(calls.some((call) => call[1] > mockContext.x)).toBe(true);
     });
   });
 });

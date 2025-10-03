@@ -1,5 +1,6 @@
 import { marked, Tokens } from 'marked';
 import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Utility functions for parsing and rendering markdown content
@@ -17,6 +18,10 @@ export interface RenderContext {
   lineSpacing: number;
   paragraphSpacing: number;
   textAlign: 'left' | 'right' | 'center' | 'full';
+  tableTheme?: 'striped' | 'grid' | 'plain';
+  tableHeaderBold?: boolean;
+  tableHeaderFillColor?: [number, number, number] | false;
+  tableBorderColor?: [number, number, number];
 }
 
 /**
@@ -39,7 +44,14 @@ export const renderTextLine = (
   bold: boolean = false,
   italic: boolean = false
 ): number => {
-  const fontStyle = bold && italic ? 'bolditalic' : bold ? 'bold' : italic ? 'italic' : 'normal';
+  const fontStyle =
+    bold && italic
+      ? 'bolditalic'
+      : bold
+        ? 'bold'
+        : italic
+          ? 'italic'
+          : 'normal';
   pdf.setFont(pdf.getFont().fontName, fontStyle);
 
   // Split text into lines if it's too long
@@ -106,7 +118,7 @@ const renderTextWithFormatting = (
   text: string,
   x: number,
   y: number,
-  maxWidth: number
+  _maxWidth: number
 ): void => {
   // Check if text has bold formatting
   const hasBold = /\*\*(.+?)\*\*/.test(text);
@@ -136,7 +148,9 @@ const renderTextWithFormatting = (
           }
           // Add bold text
           segments.push({ text: boldMatch[1], bold: true });
-          remaining = remaining.substring(boldMatch.index + boldMatch[0].length);
+          remaining = remaining.substring(
+            boldMatch.index + boldMatch[0].length
+          );
         } else {
           // No more bold text
           segments.push({ text: remaining, bold: false });
@@ -146,10 +160,7 @@ const renderTextWithFormatting = (
 
       // Render segments
       segments.forEach((segment) => {
-        pdf.setFont(
-          pdf.getFont().fontName,
-          segment.bold ? 'bold' : 'normal'
-        );
+        pdf.setFont(pdf.getFont().fontName, segment.bold ? 'bold' : 'normal');
         pdf.text(segment.text, currentX, y);
         currentX += pdf.getTextWidth(segment.text);
       });
@@ -211,7 +222,13 @@ export const renderParagraph = (
     }
 
     // Render with inline formatting support
-    renderTextWithFormatting(pdf, line, xPos, y + index * lineHeightMm, maxWidth);
+    renderTextWithFormatting(
+      pdf,
+      line,
+      xPos,
+      y + index * lineHeightMm,
+      maxWidth
+    );
   });
 
   return y + lines.length * lineHeightMm + paragraphSpacing;
@@ -305,4 +322,77 @@ export const renderListItem = (
   });
 
   return y + lines.length * lineHeightMm;
+};
+
+/**
+ * Render a markdown table using jsPDF-AutoTable
+ */
+export const renderTable = (
+  context: RenderContext,
+  tableToken: Tokens.Table
+): number => {
+  const {
+    pdf,
+    x,
+    y,
+    maxWidth,
+    fontSizeNormal,
+    paragraphSpacing,
+    tableTheme = 'grid',
+    tableHeaderBold = true,
+    tableHeaderFillColor = [240, 240, 240], // Light gray
+    tableBorderColor = [200, 200, 200], // Medium gray
+  } = context;
+
+  // Extract table data
+  const header = tableToken.header.map((cell) => cell.text);
+  const body = tableToken.rows.map((row) => row.map((cell) => cell.text));
+  const alignments = tableToken.align;
+
+  // Convert markdown alignment to jsPDF-AutoTable format
+  const columnStyles: {
+    [key: number]: { halign: 'left' | 'center' | 'right' };
+  } = {};
+  alignments.forEach((align, index) => {
+    if (align) {
+      columnStyles[index] = {
+        halign:
+          align === 'center' ? 'center' : align === 'right' ? 'right' : 'left',
+      };
+    }
+  });
+
+  // Configure table styling to match GC Letters design
+  autoTable(pdf, {
+    head: [header],
+    body: body,
+    startY: y,
+    margin: { left: x, right: x },
+    tableWidth: maxWidth,
+    theme: tableTheme,
+    styles: {
+      font: pdf.getFont().fontName,
+      fontSize: fontSizeNormal,
+      cellPadding: 2,
+      lineColor: tableBorderColor,
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fontStyle: tableHeaderBold ? 'bold' : 'normal',
+      fillColor: tableHeaderFillColor,
+      textColor: [0, 0, 0],
+    },
+    columnStyles: columnStyles,
+    didDrawPage: (data) => {
+      // Store the final Y position after table rendering
+      context.y = data.cursor?.y || y;
+    },
+  });
+
+  // Get the final Y position after the table
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const finalY = (pdf as any).lastAutoTable?.finalY || y;
+
+  // Add paragraph spacing after table
+  return finalY + paragraphSpacing;
 };
