@@ -47,7 +47,7 @@ test-app/dist/
 test-app/*.tgz
 
 # Documentation
-docs/
+requirements/
 
 # Package manager lock files (optional - uncomment if needed)
 # package-lock.json

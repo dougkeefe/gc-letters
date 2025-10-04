@@ -9,7 +9,7 @@ An npm package for Government of Canada departments to generate Federal Identity
 
 - ✅ **FIP Compliant** - Follows Government of Canada Federal Identity Program standards
 - ✅ **Browser-Based** - No server required; generates PDFs client-side using jsPDF
-- ✅ **Markdown Support** - Write letter content in markdown for easy formatting
+- ✅ **Markdown Support** - Write letter content in markdown for easy formatting (including tables)
 - ✅ **React Components** - Simple, declarative API using React
 - ✅ **Flexible Typography** - Control fonts, sizes, spacing at document and block levels
 - ✅ **Page Management** - Automatic page breaks, page numbering, and next-page indicators
@@ -105,14 +105,20 @@ Content section component for rendering markdown.
 - Bold: `**text**`
 - Italic: `*text*`
 - Lists: `- item` or `1. item`
+- Tables: Standard markdown table syntax with column alignment
 
 ### SeparatorLine
 
 Horizontal line for visual separation.
 
 ```tsx
-<SeparatorLine />
+<SeparatorLine
+  topMargin="5mm"      // Optional: spacing before line
+  bottomMargin="10mm"  // Optional: spacing after line
+/>
 ```
+
+**Default spacing**: 1x paragraph spacing above, 2x below
 
 ## Examples
 
@@ -153,6 +159,26 @@ Horizontal line for visual separation.
   <LetterBlock content="Signature" textAlign="right" />
 </GcLetter>
 ```
+
+### Tables
+
+Markdown tables are fully supported with column alignment:
+
+```tsx
+<LetterBlock content={`
+| Item | Q1 | Q2 | Q3 | Q4 | Total |
+|------|---:|---:|---:|---:|------:|
+| Revenue | $2.5M | $2.8M | $3.1M | $2.6M | $11.0M |
+| Expenses | $1.8M | $2.1M | $2.3M | $1.9M | $8.1M |
+| **Net** | **$0.7M** | **$0.7M** | **$0.8M** | **$0.7M** | **$2.9M** |
+`} />
+```
+
+**Table styling options** (optional props on LetterBlock):
+- `tableTheme` - 'striped' | 'grid' | 'plain' (default: 'grid')
+- `tableHeaderBold` - Bold headers (default: true)
+- `tableHeaderFillColor` - Header background color RGB array
+- `tableBorderColor` - Border color RGB array
 
 **More examples**: See [examples/](./examples/) directory
 
@@ -270,10 +296,10 @@ deptSignature="signature.svg"  // Convert to PNG first
 Future enhancements being considered:
 
 - [ ] Image embedding in markdown
-- [ ] Table support
 - [ ] Server-side rendering option
 - [ ] Additional fonts
 - [ ] Custom templates
+- [ ] Advanced table features (merged cells, custom cell styling)
 
 ## Contributing
 
@@ -303,6 +329,7 @@ See [LICENSE](./LICENSE) file for details.
 
 Built with:
 - [jsPDF](https://github.com/parallax/jsPDF) - PDF generation
+- [jsPDF-AutoTable](https://github.com/simonbengtsson/jsPDF-AutoTable) - Table rendering
 - [marked](https://github.com/markedjs/marked) - Markdown parsing
 - [React](https://reactjs.org/) - Component framework
 
