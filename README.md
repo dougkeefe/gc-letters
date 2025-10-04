@@ -51,7 +51,8 @@ function MyLetter() {
         deptSignature="https://example.com/signature.png"
         onReady={(download) => setDownloadFn(() => download)}
       >
-        <LetterBlock content={`# Dear Recipient
+        <LetterBlock>
+{`# Dear Recipient
 
 This is my letter written in **markdown**.
 
@@ -61,7 +62,8 @@ This is my letter written in **markdown**.
 - Second point
 - Third point
 
-Thank you for your attention.`} />
+Thank you for your attention.`}
+        </LetterBlock>
       </GcLetter>
     </div>
   );
@@ -93,11 +95,22 @@ Main wrapper component that handles document-level settings and PDF generation.
 Content section component for rendering markdown.
 
 ```tsx
+{/* Option 1: Using content prop */}
 <LetterBlock
-  content="# Heading\n\nParagraph text"   // Markdown content
-  allowPagebreak={true}                    // Allow page breaks
-  textAlign="left"                         // Override alignment
+  content="# Heading\n\nParagraph text"
+  allowPagebreak={true}
+  textAlign="left"
 />
+
+{/* Option 2: Using children (recommended for readability) */}
+<LetterBlock allowPagebreak={true}>
+{`# Heading
+
+Paragraph text with **bold** and *italic*.
+
+- List item 1
+- List item 2`}
+</LetterBlock>
 ```
 
 **Supported Markdown**:
@@ -126,7 +139,9 @@ Horizontal line for visual separation.
 
 ```tsx
 <GcLetter fileName="basic" deptSignature="https://...">
-  <LetterBlock content="Simple letter content." />
+  <LetterBlock>
+    Simple letter content.
+  </LetterBlock>
 </GcLetter>
 ```
 

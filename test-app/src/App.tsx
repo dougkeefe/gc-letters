@@ -107,7 +107,8 @@ function BasicExample({
 
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
-        <LetterBlock content={`**Veterans Affairs Canada**
+        {/* Test: Content as children instead of prop */}
+        <LetterBlock>{`**Veterans Affairs Canada**
 
 **Digital Policy and Innovation**
 
@@ -117,57 +118,70 @@ Dr. Sarah Chen
 Director, Technology Modernization
 Veterans Affairs Canada
 66 Slater Street
-Ottawa, ON K1A 0P4`} />
+Ottawa, ON K1A 0P4`}</LetterBlock>
 
-        <LetterBlock content={`Dear Dr. Chen,
+        <LetterBlock>
+{`Dear Dr. Chen,
 
 **Re: Approval of Open Source Software Initiative**
 
-I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`} />
+I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Initiative Overview
+        <LetterBlock>
+{`## Initiative Overview
 
 Your initiative demonstrates exceptional alignment with the Government of Canada's Digital Standards and the Treasury Board Directive on Service and Digital. By embracing open source principles, we will:
 
 - **Increase transparency** in how we deliver digital services to veterans
 - **Reduce costs** through shared development and reusable code
 - **Improve security** through community peer review and faster vulnerability patching
-- **Foster innovation** by enabling collaboration across departments`} />
+- **Foster innovation** by enabling collaboration across departments`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Approved Activities
+        <LetterBlock>
+{`## Approved Activities
 
 The following activities have been approved for immediate implementation:
 
 1. **Open Source Licensing**: All new software projects will use approved open source licenses (MIT, Apache 2.0, or GPL v3)
 2. **Public Code Repositories**: Non-sensitive code will be published on GitHub under the @veterans-affairs-canada organization
 3. **Community Engagement**: Developers are authorized to participate in relevant open source communities during work hours
-4. **Documentation Standards**: All projects will maintain comprehensive README files and contribution guidelines`} />
+4. **Documentation Standards**: All projects will maintain comprehensive README files and contribution guidelines`}
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock content={`## Budget Allocation
+        <LetterBlock>
+{`## Budget Allocation
 
 An annual budget of **$250,000** has been allocated to support:
 
 - Open source tool licensing and hosting
 - Developer training and certification programs
 - Community event participation
-- External contributor recognition and rewards`} />
+- External contributor recognition and rewards`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Next Steps
+        <LetterBlock>
+{`## Next Steps
 
 Please proceed with the following:
 
 1. Establish the Open Source Program Office by March 31, 2025
 2. Develop internal contribution guidelines aligned with TBS policies
 3. Provide quarterly reports on adoption metrics and community engagement
-4. Schedule a department-wide information session on open source best practices`} />
+4. Schedule a department-wide information session on open source best practices`}
+        </LetterBlock>
 
-        <LetterBlock content={`This initiative represents a significant step forward in modernizing our digital infrastructure while maintaining the highest standards of security and privacy for veterans' information.
+        <LetterBlock>
+{`This initiative represents a significant step forward in modernizing our digital infrastructure while maintaining the highest standards of security and privacy for veterans' information.
 
-Congratulations to you and your team on this important achievement. I look forward to seeing the positive impact of this work on veterans and their families.`} />
+Congratulations to you and your team on this important achievement. I look forward to seeing the positive impact of this work on veterans and their families.`}
+        </LetterBlock>
 
-        <LetterBlock content={`Sincerely,
+        <LetterBlock textAlign="left" allowPagebreak={false}>
+{`Sincerely,
 
 **Jean-Marc Dubois**
 *Assistant Deputy Minister*
@@ -177,7 +191,8 @@ Veterans Affairs Canada
 **cc:**
 Chief Information Officer
 Director General, Service Delivery
-Privacy Commissioner`} textAlign="left" allowPagebreak={false} />
+Privacy Commissioner`}
+        </LetterBlock>
       </GcLetter>
     </div>
   );
@@ -221,7 +236,8 @@ function MultiPageExample({
         letterNumberAlignment="left"
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
-        <LetterBlock content={`# Official Notice
+        <LetterBlock>
+{`# Official Notice
 
 [Date: ${new Date().toLocaleDateString()}]
 
@@ -229,19 +245,23 @@ function MultiPageExample({
 
 Dear Stakeholder,
 
-This letter demonstrates the multi-page capabilities of the gc-letters package.`} />
+This letter demonstrates the multi-page capabilities of the gc-letters package.`}
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock content={`## Section 1: Introduction
+        <LetterBlock>
+{`## Section 1: Introduction
 
 This is the first section of our multi-page letter. It contains important information that spans multiple pages.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`} />
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Section 2: Details
+        <LetterBlock>
+{`## Section 2: Details
 
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
@@ -253,9 +273,11 @@ Additional details that may span across pages. The page numbering will automatic
 
 ### Subsection 2.2
 
-More content to ensure we have enough text to create multiple pages for testing purposes.`} />
+More content to ensure we have enough text to create multiple pages for testing purposes.`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Section 3: Conclusion
+        <LetterBlock>
+{`## Section 3: Conclusion
 
 Thank you for reviewing this multi-page document. Notice how:
 
@@ -266,7 +288,8 @@ Thank you for reviewing this multi-page document. Notice how:
 Sincerely,
 
 **Department Official**
-Government of Canada`} />
+Government of Canada`}
+        </LetterBlock>
       </GcLetter>
     </div>
   );
@@ -305,67 +328,63 @@ function CustomFormattingExample({
         paragraphSpacing="12mm"
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
-        <LetterBlock
-          content={`# Custom Typography Letter`}
-          textAlign="center"
-        />
+        <LetterBlock textAlign="center">
+          {`# Custom Typography Letter`}
+        </LetterBlock>
 
-        <LetterBlock
-          content={`[Date: ${new Date().toLocaleDateString()}]`}
-          textAlign="right"
-        />
+        <LetterBlock textAlign="right">
+          {`[Date: ${new Date().toLocaleDateString()}]`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Left Aligned Section
+        <LetterBlock>
+{`## Left Aligned Section
 
 This section uses the default left alignment. It demonstrates standard paragraph formatting with custom line and paragraph spacing.
 
-This is how most body text will appear in your letters.`} />
+This is how most body text will appear in your letters.`}
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock
-          content={`## Center Aligned Section
+        <LetterBlock textAlign="center">
+{`## Center Aligned Section
 
 This section is centered for emphasis.
 
 Perfect for titles or important announcements.`}
-          textAlign="center"
-        />
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock
-          content={`## Right Aligned Section
+        <LetterBlock textAlign="right">
+{`## Right Aligned Section
 
 This section is right-aligned.
 
 Often used for dates or signatures.`}
-          textAlign="right"
-        />
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock
-          content={`## Fully Justified Section
+        <LetterBlock textAlign="full">
+{`## Fully Justified Section
 
 This section uses full justification, which means text is aligned to both the left and right margins. This creates a clean, professional appearance and is commonly used in formal government documents. The spacing between words is adjusted to ensure both edges are flush.`}
-          textAlign="full"
-        />
+        </LetterBlock>
 
-        <LetterBlock
-          content={`**Custom Font Example**
+        <LetterBlock textSizeNormal="14pt">
+{`**Custom Font Example**
 
 This block uses a larger font size to demonstrate block-level typography overrides.`}
-          textSizeNormal="14pt"
-        />
+        </LetterBlock>
 
-        <LetterBlock
-          content={`Thank you for reviewing these formatting options.
+        <LetterBlock>
+{`Thank you for reviewing these formatting options.
 
 Sincerely,
 
 Design Team`}
-        />
+        </LetterBlock>
       </GcLetter>
     </div>
   );
@@ -401,55 +420,70 @@ function TableExample({
         pageNumberAlignment="center"
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
-        <LetterBlock content={`# Budget Report FY 2024-2025
+        <LetterBlock>
+{`# Budget Report FY 2024-2025
 
 **Veterans Affairs Canada**
 **Financial Planning Division**
 
-${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}`} />
+${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })}`}
+        </LetterBlock>
 
         <SeparatorLine />
 
-        <LetterBlock content={`## Quarterly Budget Allocation
+        <LetterBlock>
+{`## Quarterly Budget Allocation
 
-The following table outlines the approved budget allocation across our key program areas for the current fiscal year:`} />
+The following table outlines the approved budget allocation across our key program areas for the current fiscal year:`}
+        </LetterBlock>
 
-        <LetterBlock content={`| Program Area | Q1 Budget | Q2 Budget | Q3 Budget | Q4 Budget | Total |
+        <LetterBlock>
+{`| Program Area | Q1 Budget | Q2 Budget | Q3 Budget | Q4 Budget | Total |
 |--------------|-----------|-----------|-----------|-----------|-------|
 | Veterans Services | $2.5M | $2.8M | $3.1M | $2.6M | $11.0M |
 | Healthcare Support | $4.2M | $4.5M | $4.8M | $4.3M | $17.8M |
 | Digital Transformation | $1.8M | $2.1M | $2.3M | $1.9M | $8.1M |
 | Research & Development | $0.9M | $1.2M | $1.4M | $1.0M | $4.5M |
 | Administrative | $1.1M | $1.0M | $1.2M | $1.1M | $4.4M |
-| **Total** | **$10.5M** | **$11.6M** | **$12.8M** | **$10.9M** | **$45.8M** |`} />
+| **Total** | **$10.5M** | **$11.6M** | **$12.8M** | **$10.9M** | **$45.8M** |`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Regional Distribution
+        <LetterBlock>
+{`## Regional Distribution
 
-Budget allocation by regional office:`} />
+Budget allocation by regional office:`}
+        </LetterBlock>
 
-        <LetterBlock content={`| Region | Allocation | Percentage |
+        <LetterBlock>
+{`| Region | Allocation | Percentage |
 |--------|------------|------------|
 | Atlantic | $8.2M | 18% |
 | Quebec | $12.4M | 27% |
 | Ontario | $15.6M | 34% |
 | Prairies | $5.8M | 13% |
 | Pacific | $3.8M | 8% |
-| **Total** | **$45.8M** | **100%** |`} />
+| **Total** | **$45.8M** | **100%** |`}
+        </LetterBlock>
 
         <SeparatorLine topMargin="8mm" bottomMargin="8mm" />
 
-        <LetterBlock content={`## Key Performance Indicators
+        <LetterBlock>
+{`## Key Performance Indicators
 
-Current quarter performance metrics:`} />
+Current quarter performance metrics:`}
+        </LetterBlock>
 
-        <LetterBlock content={`| Metric | Target | Actual | Status |
+        <LetterBlock>
+{`| Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
 | Service Response Time | < 48hrs | 36hrs | ✅ Met |
 | Client Satisfaction | > 85% | 89% | ✅ Exceeded |
 | Budget Utilization | 90-95% | 93% | ✅ On Track |
-| Digital Adoption | > 70% | 68% | ⚠️ Below Target |`} />
+| Digital Adoption | > 70% | 68% | ⚠️ Below Target |`}
+        </LetterBlock>
 
-        <LetterBlock content={`## Summary
+        <LetterBlock textAlign="left">
+{`## Summary
 
 The budget allocation for FY 2024-2025 reflects our commitment to delivering exceptional services to Canadian veterans while investing in digital transformation and innovation.
 
@@ -459,7 +493,8 @@ For questions regarding this report, please contact the Financial Planning Divis
 
 **Michelle Tremblay**
 *Director, Financial Planning*
-Veterans Affairs Canada`} textAlign="left" />
+Veterans Affairs Canada`}
+        </LetterBlock>
       </GcLetter>
     </div>
   );
