@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { GcLetter, LetterBlock, SeparatorLine } from 'gc-letters';
 
-type ExampleTab = 'basic' | 'multipage' | 'custom' | 'table';
+type ExampleTab = 'basic' | 'custom' | 'table';
 
 function App() {
   const [activeTab, setActiveTab] = useState<ExampleTab>('basic');
   const [basicDownload, setBasicDownload] = useState<(() => void) | null>(null);
-  const [multipageDownload, setMultipageDownload] = useState<(() => void) | null>(null);
   const [customDownload, setCustomDownload] = useState<(() => void) | null>(null);
   const [tableDownload, setTableDownload] = useState<(() => void) | null>(null);
 
@@ -34,12 +33,6 @@ function App() {
             FIP-Compliant Letter
           </button>
           <button
-            className={activeTab === 'multipage' ? 'active' : ''}
-            onClick={() => setActiveTab('multipage')}
-          >
-            Multi-Page Example
-          </button>
-          <button
             className={activeTab === 'custom' ? 'active' : ''}
             onClick={() => setActiveTab('custom')}
           >
@@ -55,7 +48,6 @@ function App() {
 
         <div className="example-container">
           {activeTab === 'basic' && <BasicExample onReady={setBasicDownload} download={basicDownload} />}
-          {activeTab === 'multipage' && <MultiPageExample onReady={setMultipageDownload} download={multipageDownload} />}
           {activeTab === 'custom' && <CustomFormattingExample onReady={setCustomDownload} download={customDownload} />}
           {activeTab === 'table' && <TableExample onReady={setTableDownload} download={tableDownload} />}
         </div>
@@ -125,6 +117,8 @@ Ottawa, ON K1A 0P4`}</LetterBlock>
 
 **Re: Approval of Open Source Software Initiative**
 
+*Note: This is an example letter demonstrating the gc-letters package capabilities.*
+
 I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`}
         </LetterBlock>
 
@@ -192,103 +186,6 @@ Veterans Affairs Canada
 Chief Information Officer
 Director General, Service Delivery
 Privacy Commissioner`}
-        </LetterBlock>
-      </GcLetter>
-    </div>
-  );
-}
-
-// Multi-Page Example Component
-function MultiPageExample({
-  onReady,
-  download
-}: {
-  onReady: (fn: (() => void) | null) => void;
-  download: (() => void) | null;
-}) {
-  return (
-    <div>
-      <h2>Multi-Page Letter Example</h2>
-      <p>Demonstrates page numbering (skip-first), next page indicators, and letter tracking numbers.</p>
-
-      <button
-        className="download-button"
-        onClick={() => download?.()}
-        disabled={!download}
-      >
-        Download Multi-Page Letter PDF
-      </button>
-
-      <GcLetter
-        fileName="multi-page-letter"
-        deptSignature="/veterans-affairs-signature.png"
-        showPageNumbers="skip-first"
-        pageNumberFormat="Page #"
-        pageNumberLocation="footer"
-        pageNumberAlignment="center"
-        showNextPage="skip-first"
-        nextPageNumberFormat=".../#"
-        nextPageNumberLocation="footer"
-        nextPageNumberAlignment="right"
-        letterNumber="2024-GC-00123"
-        showLetterNumber={false}
-        letterNumberLocation="footer"
-        letterNumberAlignment="left"
-        onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
-      >
-        <LetterBlock>
-{`# Official Notice
-
-[Date: ${new Date().toLocaleDateString()}]
-
-**File Number:** 2024-GC-00123
-
-Dear Stakeholder,
-
-This letter demonstrates the multi-page capabilities of the gc-letters package.`}
-        </LetterBlock>
-
-        <SeparatorLine />
-
-        <LetterBlock>
-{`## Section 1: Introduction
-
-This is the first section of our multi-page letter. It contains important information that spans multiple pages.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`}
-        </LetterBlock>
-
-        <LetterBlock>
-{`## Section 2: Details
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-### Subsection 2.1
-
-Additional details that may span across pages. The page numbering will automatically handle multi-page content.
-
-### Subsection 2.2
-
-More content to ensure we have enough text to create multiple pages for testing purposes.`}
-        </LetterBlock>
-
-        <LetterBlock>
-{`## Section 3: Conclusion
-
-Thank you for reviewing this multi-page document. Notice how:
-
-- Page numbers appear on all pages except the first
-- Next page indicators show which page is coming next
-- The letter tracking number appears on every page
-
-Sincerely,
-
-**Department Official**
-Government of Canada`}
         </LetterBlock>
       </GcLetter>
     </div>
@@ -431,13 +328,13 @@ ${new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 
 
         <SeparatorLine />
 
-        <LetterBlock>
+        <LetterBlock allowPagebreak={false}>
 {`## Quarterly Budget Allocation
 
 The following table outlines the approved budget allocation across our key program areas for the current fiscal year:`}
         </LetterBlock>
 
-        <LetterBlock>
+        <LetterBlock allowPagebreak={false}>
 {`| Program Area | Q1 Budget | Q2 Budget | Q3 Budget | Q4 Budget | Total |
 |--------------|-----------|-----------|-----------|-----------|-------|
 | Veterans Services | $2.5M | $2.8M | $3.1M | $2.6M | $11.0M |
@@ -448,14 +345,12 @@ The following table outlines the approved budget allocation across our key progr
 | **Total** | **$10.5M** | **$11.6M** | **$12.8M** | **$10.9M** | **$45.8M** |`}
         </LetterBlock>
 
-        <LetterBlock>
+        <LetterBlock allowPagebreak={false}>
 {`## Regional Distribution
 
-Budget allocation by regional office:`}
-        </LetterBlock>
+Budget allocation by regional office:
 
-        <LetterBlock>
-{`| Region | Allocation | Percentage |
+| Region | Allocation | Percentage |
 |--------|------------|------------|
 | Atlantic | $8.2M | 18% |
 | Quebec | $12.4M | 27% |

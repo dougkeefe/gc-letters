@@ -351,10 +351,10 @@ const GcLetter: React.FC<GcLetterProps> = ({
     const getEffectiveBottomMargin = (currentPageNum: number): number => {
       if (currentPageNum === 1 && showCanadaWordmark) {
         // FIP specs: Canada wordmark is 13mm from bottom edge, 30mm wide
-        // Clear space requirement: height of letter "C" (approximately 1/3 of wordmark height)
+        // Clear space requirement: Use full wordmark height as clear space for safety
         const wordmarkWidth = 30; // mm (per FIP specs)
-        const wordmarkHeight = (34 / 144) * wordmarkWidth; // aspect ratio from original PNG
-        const clearSpace = wordmarkHeight / 3; // height of letter "C" (approx)
+        const wordmarkHeight = (34 / 144) * wordmarkWidth; // aspect ratio from original PNG (144x34 pixels)
+        const clearSpace = wordmarkHeight * 1.5; // Increased clear space to prevent overlap
         const wordmarkBottomPosition = 13; // mm from bottom edge (per FIP specs)
 
         // Content should stay above: wordmark position + wordmark height + clear space
