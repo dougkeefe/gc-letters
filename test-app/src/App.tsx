@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { GcLetter, LetterBlock, SeparatorLine } from 'gc-letters';
 
-type ExampleTab = 'basic' | 'custom' | 'table';
+type ExampleTab = 'basic' | 'french' | 'custom' | 'table';
 
 function App() {
   const [activeTab, setActiveTab] = useState<ExampleTab>('basic');
   const [basicDownload, setBasicDownload] = useState<(() => void) | null>(null);
+  const [frenchDownload, setFrenchDownload] = useState<(() => void) | null>(null);
   const [customDownload, setCustomDownload] = useState<(() => void) | null>(null);
   const [tableDownload, setTableDownload] = useState<(() => void) | null>(null);
 
@@ -33,6 +34,12 @@ function App() {
             FIP-Compliant Letter
           </button>
           <button
+            className={activeTab === 'french' ? 'active' : ''}
+            onClick={() => setActiveTab('french')}
+          >
+            Lettre en Français
+          </button>
+          <button
             className={activeTab === 'custom' ? 'active' : ''}
             onClick={() => setActiveTab('custom')}
           >
@@ -48,6 +55,7 @@ function App() {
 
         <div className="example-container">
           {activeTab === 'basic' && <BasicExample onReady={setBasicDownload} download={basicDownload} />}
+          {activeTab === 'french' && <FrenchExample onReady={setFrenchDownload} download={frenchDownload} />}
           {activeTab === 'custom' && <CustomFormattingExample onReady={setCustomDownload} download={customDownload} />}
           {activeTab === 'table' && <TableExample onReady={setTableDownload} download={tableDownload} />}
         </div>
@@ -186,6 +194,140 @@ Veterans Affairs Canada
 Chief Information Officer
 Director General, Service Delivery
 Privacy Commissioner`}
+        </LetterBlock>
+      </GcLetter>
+    </div>
+  );
+}
+
+// French Example Component
+function FrenchExample({
+  onReady,
+  download
+}: {
+  onReady: (fn: (() => void) | null) => void;
+  download: (() => void) | null;
+}) {
+  return (
+    <div>
+      <h2>Exemple de Lettre en Français</h2>
+      <p>Une lettre complète conforme aux normes du Programme de coordination de l'image de marque (PCIM) avec correspondance gouvernementale réaliste en français.</p>
+
+      <div className="info-box">
+        <h3>Éléments PCIM démontrés :</h3>
+        <ul>
+          <li>✅ Signature ministérielle (Anciens Combattants Canada)</li>
+          <li>✅ Mot-symbole « Canada » (en bas à gauche, première page seulement)</li>
+          <li>✅ Numéro de suivi de la lettre (ACC-DPI-2024-003)</li>
+          <li>✅ Marges et typographie appropriées (police Helvetica)</li>
+          <li>✅ Format de lettre gouvernementale professionnelle</li>
+        </ul>
+      </div>
+
+      <button
+        className="download-button"
+        onClick={() => download?.()}
+        disabled={!download}
+      >
+        Télécharger la lettre PDF en français
+      </button>
+
+      <GcLetter
+        fileName="initiative-logiciel-libre"
+        deptSignature="/veterans-affairs-signature.png"
+        showLetterNumber={false}
+        letterNumber="ACC-DPI-2024-003"
+        letterNumberLocation="footer"
+        letterNumberAlignment="left"
+        showPageNumbers={'skip-first'}
+        onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
+      >
+        <LetterBlock>{`**Anciens Combattants Canada**
+
+**Politique numérique et innovation**
+
+${new Date().toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+Dre Sarah Chen
+Directrice, Modernisation technologique
+Anciens Combattants Canada
+66, rue Slater
+Ottawa (Ontario) K1A 0P4`}</LetterBlock>
+
+        <LetterBlock>
+{`Chère Dre Chen,
+
+**Objet : Approbation de l'initiative de logiciels libres**
+
+*Remarque : Il s'agit d'un exemple de lettre démontrant les capacités du module gc-letters.*
+
+J'ai le plaisir de vous informer que l'équipe de la politique numérique et de l'innovation a approuvé votre proposition d'adopter des pratiques de logiciels libres dans les services numériques d'Anciens Combattants Canada.`}
+        </LetterBlock>
+
+        <LetterBlock>
+{`## Aperçu de l'initiative
+
+Votre initiative démontre un alignement exceptionnel avec les Normes numériques du gouvernement du Canada et la Directive sur les services et le numérique du Conseil du Trésor. En adoptant les principes des logiciels libres, nous pourrons :
+
+- **Accroître la transparence** dans la prestation de services numériques aux anciens combattants
+- **Réduire les coûts** grâce au développement partagé et au code réutilisable
+- **Améliorer la sécurité** grâce à l'examen par les pairs de la communauté et à la correction plus rapide des vulnérabilités
+- **Favoriser l'innovation** en permettant la collaboration entre les ministères`}
+        </LetterBlock>
+
+        <LetterBlock>
+{`## Activités approuvées
+
+Les activités suivantes ont été approuvées pour une mise en œuvre immédiate :
+
+1. **Licences de logiciels libres** : Tous les nouveaux projets logiciels utiliseront des licences de logiciels libres approuvées (MIT, Apache 2.0 ou GPL v3)
+2. **Dépôts de code publics** : Le code non sensible sera publié sur GitHub sous l'organisation @anciens-combattants-canada
+3. **Engagement communautaire** : Les développeurs sont autorisés à participer aux communautés de logiciels libres pertinentes pendant les heures de travail
+4. **Normes de documentation** : Tous les projets maintiendront des fichiers README complets et des lignes directrices de contribution`}
+        </LetterBlock>
+
+        <SeparatorLine />
+
+        <LetterBlock>
+{`## Attribution budgétaire
+
+Un budget annuel de **250 000 $** a été alloué pour soutenir :
+
+- Les licences et l'hébergement d'outils de logiciels libres
+- Les programmes de formation et de certification des développeurs
+- La participation à des événements communautaires
+- La reconnaissance et les récompenses des contributeurs externes`}
+        </LetterBlock>
+
+        <LetterBlock>
+{`## Prochaines étapes
+
+Veuillez procéder comme suit :
+
+1. Établir le Bureau du programme de logiciels libres d'ici le 31 mars 2025
+2. Élaborer des lignes directrices de contribution internes conformes aux politiques du SCT
+3. Fournir des rapports trimestriels sur les mesures d'adoption et l'engagement communautaire
+4. Organiser une séance d'information à l'échelle du ministère sur les meilleures pratiques en matière de logiciels libres`}
+        </LetterBlock>
+
+        <LetterBlock>
+{`Cette initiative représente un pas important dans la modernisation de notre infrastructure numérique tout en maintenant les normes les plus élevées en matière de sécurité et de protection de la vie privée pour les renseignements des anciens combattants.
+
+Félicitations à vous et à votre équipe pour cette réalisation importante. J'ai hâte de voir l'impact positif de ce travail sur les anciens combattants et leurs familles.`}
+        </LetterBlock>
+
+        <LetterBlock textAlign="left" allowPagebreak={false}>
+{`Je vous prie d'agréer, Dre Chen, l'expression de mes sentiments les meilleurs.
+
+**Jean-Marc Dubois**
+*Sous-ministre adjoint*
+Politique numérique et innovation
+Anciens Combattants Canada
+
+**c.c. :**
+Dirigeant principal de l'information
+Directeur général, Prestation de services
+Commissaire à la protection de la vie privée`}
         </LetterBlock>
       </GcLetter>
     </div>
