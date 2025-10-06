@@ -104,7 +104,7 @@ function BasicExample({
         letterNumberLocation="footer"
         letterNumberAlignment="left"
         showPageNumbers={'skip-first'}
-
+        showNextPage={true}
         onReady={(downloadFn: () => void) => onReady(() => downloadFn)}
       >
         {/* Test: Content as children instead of prop */}

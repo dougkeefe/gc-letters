@@ -50,8 +50,8 @@ const GcLetter: React.FC<GcLetterProps> = ({
   pageNumberAlignment = 'center',
   showNextPage = false,
   nextPageNumberFormat = '.../#',
-  nextPageNumberLocation = 'header',
-  nextPageNumberAlignment = 'center',
+  nextPageNumberLocation = 'footer',
+  nextPageNumberAlignment = 'right',
   letterVersion: _letterVersion,
   letterNumber,
   showLetterNumber = false,
@@ -94,9 +94,6 @@ const GcLetter: React.FC<GcLetterProps> = ({
       pdf.setFont(fontFace);
       pdf.setFontSize(convertToMm(textSizeNormal));
 
-      // Render initial page elements
-      renderPageElements(pdf, 1);
-
       // Render department signature at top
       const signatureHeight = await renderDepartmentSignature(pdf);
       y = topMargin + signatureHeight + 10; // Add spacing after signature
@@ -127,6 +124,13 @@ const GcLetter: React.FC<GcLetterProps> = ({
         }
       });
 
+      // After all content is rendered, add page numbers and metadata to all pages
+      const totalPages = pdf.getNumberOfPages();
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        pdf.setPage(pageNum);
+        renderPageElements(pdf, pageNum, totalPages);
+      }
+
       // Provide download function to parent via callback
       if (onReady) {
         const download = () => {
@@ -146,9 +150,7 @@ const GcLetter: React.FC<GcLetterProps> = ({
 
   // Function to render page numbers, metadata, and next page indicators
   const renderPageElements = React.useCallback(
-    (pdf: jsPDF, pageNum: number) => {
-      const totalPages = pdf.getNumberOfPages();
-
+    (pdf: jsPDF, pageNum: number, totalPages: number) => {
       // Set consistent font size and style for page elements
       pdf.setFontSize(8); // Smaller font for page numbers and metadata
       pdf.setFont(fontFace, 'normal');
@@ -251,10 +253,9 @@ const GcLetter: React.FC<GcLetterProps> = ({
     ]
   );
 
-  // Function to add a new page and render headers/footers
-  const addNewPage = (pdf: jsPDF, pageNum: number): number => {
+  // Function to add a new page
+  const addNewPage = (pdf: jsPDF, _pageNum: number): number => {
     pdf.addPage();
-    renderPageElements(pdf, pageNum + 1);
     // Use a larger top margin for subsequent pages (no dept signature)
     // First page has signature which adds visual balance; subsequent pages need more space
     return yMarginMm * 2; // Double the margin for pages without signature
