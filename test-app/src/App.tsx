@@ -91,10 +91,10 @@ function BasicExample({
       <div className="info-box">
         <h3>💡 Syntax Tip:</h3>
         <p>
-          Multi-line markdown content requires template literals: <code>{`{`...`}`}</code>
+          Multi-line markdown content requires template literals: <code>{'{'}`...`{'}'}</code>
         </p>
         <p style={{ fontSize: '0.9em', marginTop: '8px' }}>
-          The opening brace <code>{`{`}</code> and backtick <code>`</code> (then closing backtick and brace <code>{`}`}</code>) preserve newlines in your markdown. Without them, React collapses multi-line content into a single line.
+          The opening brace <code>{'{'}</code> and backtick <code>`</code> (then closing backtick and brace <code>{'}'}</code>) preserve newlines in your markdown. Without them, React collapses multi-line content into a single line.
         </p>
       </div>
 
