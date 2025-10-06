@@ -37,7 +37,7 @@
     "jspdf",
     "react"
   ],
-  "author": "",
+  "author": "Doug Keefe <doug@dougkeefe.com>",
   "license": "MIT",
   "repository": {
     "type": "git",

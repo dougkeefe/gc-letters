@@ -14,6 +14,7 @@ setupTests.ts
 docs/implementation-plan.md
 docs/ACTION_STEPS.md
 CLAUDE.md
+requirements/
 
 # Development files
 .husky/
