@@ -51,8 +51,8 @@ function MyLetter() {
         deptSignature="https://example.com/signature.png"
         onReady={(download) => setDownloadFn(() => download)}
       >
-        <LetterBlock>
-{`# Dear Recipient
+        {/* Note: Use {` ... `} for multi-line markdown content */}
+        <LetterBlock>{`# Dear Recipient
 
 This is my letter written in **markdown**.
 
@@ -62,8 +62,7 @@ This is my letter written in **markdown**.
 - Second point
 - Third point
 
-Thank you for your attention.`}
-        </LetterBlock>
+Thank you for your attention.`}</LetterBlock>
       </GcLetter>
     </div>
   );
@@ -111,6 +110,27 @@ Paragraph text with **bold** and *italic*.
 - List item 1
 - List item 2`}
 </LetterBlock>
+```
+
+**💡 Important**: For multi-line markdown content, you **must** use template literals with curly braces: `{`...`}`. This preserves newlines in your markdown. Without them, React will collapse multi-line content into a single line, breaking your formatting.
+
+```tsx
+{/* ✅ Correct - Template literal preserves newlines */}
+<LetterBlock>{`
+Line 1
+
+Line 2
+`}</LetterBlock>
+
+{/* ❌ Wrong - JSX collapses whitespace */}
+<LetterBlock>
+  Line 1
+
+  Line 2
+</LetterBlock>
+
+{/* ✅ Alternative - Use content prop with \n */}
+<LetterBlock content="Line 1\n\nLine 2" />
 ```
 
 **Supported Markdown**:

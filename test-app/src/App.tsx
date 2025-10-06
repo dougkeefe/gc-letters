@@ -88,6 +88,16 @@ function BasicExample({
         </ul>
       </div>
 
+      <div className="info-box">
+        <h3>💡 Syntax Tip:</h3>
+        <p>
+          Multi-line markdown content requires template literals: <code>{`{`...`}`}</code>
+        </p>
+        <p style={{ fontSize: '0.9em', marginTop: '8px' }}>
+          The opening brace <code>{`{`}</code> and backtick <code>`</code> (then closing backtick and brace <code>{`}`}</code>) preserve newlines in your markdown. Without them, React collapses multi-line content into a single line.
+        </p>
+      </div>
+
       <button
         className="download-button"
         onClick={() => download?.()}
@@ -120,15 +130,13 @@ Veterans Affairs Canada
 66 Slater Street
 Ottawa, ON K1A 0P4`}</LetterBlock>
 
-        <LetterBlock>
-{`Dear Dr. Chen,
+        <LetterBlock>{`Dear Dr. Chen,
 
 **Re: Approval of Open Source Software Initiative**
 
 *Note: This is an example letter demonstrating the gc-letters package capabilities.*
 
-I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`}
-        </LetterBlock>
+I am pleased to inform you that the Digital Policy and Innovation team has approved your proposal to adopt open source software practices within Veterans Affairs Canada's digital services.`}</LetterBlock>
 
         <LetterBlock>
 {`## Initiative Overview
