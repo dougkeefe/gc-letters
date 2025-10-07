@@ -1,6 +1,6 @@
 {
   "name": "gc-letters",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "An npm package for Government of Canada departments to generate Federal Identity Program (FIP) compliant letters as PDFs",
   "type": "module",
   "main": "dist/index.js",
@@ -48,8 +48,8 @@
   },
   "homepage": "https://github.com/dougkeefe/gc-letters#readme",
   "peerDependencies": {
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0"
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "dependencies": {
     "jspdf": "^2.5.1",

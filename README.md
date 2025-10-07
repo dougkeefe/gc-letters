@@ -25,7 +25,7 @@ npm install gc-letters
 
 ### Peer Dependencies
 
-Requires React 17 or 18:
+Requires React 17, 18, or 19:
 
 ```bash
 npm install react react-dom
