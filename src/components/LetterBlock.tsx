@@ -13,4 +13,7 @@ const LetterBlock: React.FC<LetterBlockProps> = () => {
   return null;
 };
 
+// Set displayName for reliable component identification
+LetterBlock.displayName = 'LetterBlock';
+
 export default LetterBlock;

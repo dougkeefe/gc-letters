@@ -49,7 +49,9 @@ test-app/*.tgz
 # Documentation
 requirements/
 
-# Package manager lock files (optional - uncomment if needed)
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Package manager lock files
+# For libraries: lock files should not be committed
+# Consumers will resolve dependencies based on package.json semver ranges
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

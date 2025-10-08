@@ -13,4 +13,7 @@ const SeparatorLine: React.FC<SeparatorLineProps> = () => {
   return null;
 };
 
+// Set displayName for reliable component identification
+SeparatorLine.displayName = 'SeparatorLine';
+
 export default SeparatorLine;

@@ -3,6 +3,12 @@
  */
 
 export const convertToMm = (value: string): number => {
+  // Handle edge cases where value might not be a string
+  if (typeof value !== 'string') {
+    console.warn('convertToMm received non-string value:', value);
+    return typeof value === 'number' ? value : 0;
+  }
+
   if (value.endsWith('mm')) {
     return parseFloat(value);
   }

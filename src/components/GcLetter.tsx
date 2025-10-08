@@ -107,17 +107,27 @@ const GcLetter: React.FC<GcLetterProps> = ({
       React.Children.forEach(children, (child) => {
         if (!React.isValidElement(child)) return;
 
-        // Handle LetterBlock components
+        // Get component type - use displayName for reliable identification
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (child.type && (child.type as any).name === 'LetterBlock') {
+        const displayName = (child.type as any)?.displayName;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const name = (child.type as any)?.name;
+        const componentType =
+          typeof displayName === 'string'
+            ? displayName
+            : typeof name === 'string'
+              ? name
+              : null;
+
+        // Handle LetterBlock components
+        if (componentType === 'LetterBlock') {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const props = child.props as any;
           // Render LetterBlock content directly here
           y = renderLetterBlockContent(pdf, y, props);
         }
         // Handle SeparatorLine components
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        else if (child.type && (child.type as any).name === 'SeparatorLine') {
+        else if (componentType === 'SeparatorLine') {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const props = child.props as any;
           y = renderSeparatorLineContent(pdf, y, props);

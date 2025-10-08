@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2024-10-06
+
+### Fixed
+
+- **Runtime Error: `endsWith is not a function`** - Added defensive type checking
+  - Added type guard in `convertToMm` to handle non-string inputs gracefully
+  - Improved component type detection with explicit string type checks
+  - Prevents runtime errors when unexpected values are passed
+  - Logs warnings to help debug configuration issues
+
+## [1.1.3] - 2024-10-06
+
+### Fixed
+
+- **Critical Bug: LetterBlock Content Not Rendering** - Fixed component type detection
+  - Added `displayName` to `LetterBlock` and `SeparatorLine` components
+  - Updated GcLetter to use `displayName` instead of function `name` for component identification
+  - Fixes issue where content would not appear in generated PDFs, especially with React 19
+  - **This was a critical bug affecting all users** - upgrade immediately if on 1.1.0-1.1.2
+
+### Technical Details
+
+The previous implementation used `child.type.name` to identify components, which:
+- Fails in production builds where function names are minified
+- Is unreliable across React versions (especially React 19)
+- Is not the recommended approach for component type checking
+
+The fix uses `displayName` (with fallback to `name`) which is:
+- Reliable in all build environments
+- Compatible with all React versions (17, 18, 19)
+- The recommended React pattern for component identification
+
+## [1.1.2] - 2024-10-06
+
+### Security
+
+- **Dependency Updates** - Updated dependencies to fix security vulnerabilities
+  - Updated `jspdf` from ^2.5.1 to ^3.0.3 (fixes XSS vulnerability via dompurify)
+  - Updated `jspdf-autotable` from ^3.8.4 to ^5.0.2 (compatible with jspdf 3.x)
+  - Added TextEncoder/TextDecoder polyfills for jsPDF 3.x in test environment
+  - **No breaking changes** - API remains fully compatible
+
 ## [1.1.1] - 2024-10-06
 
 ### Changed
