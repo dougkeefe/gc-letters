@@ -101,7 +101,7 @@ describe('pdfGenerator', () => {
       });
       try {
         downloadPDF(mockPdf, 'test');
-      } catch (e) {
+      } catch {
         // Expected
       }
       expect(consoleErrorSpy).toHaveBeenCalled();

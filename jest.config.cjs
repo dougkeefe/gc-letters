@@ -5,6 +5,18 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts?(x)', '**/?(*.)+(spec|test).ts?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '/__tests__/.*\\.tsx$'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  // jsPDF 4's package `exports` resolves the ESM build under jsdom, which
+  // ts-jest does not transform in node_modules. Map to the CJS (node) build
+  // for tests. (^jspdf$ only — jspdf-autotable already resolves to CJS.)
+  moduleNameMapper: {
+    '^jspdf$': '<rootDir>/node_modules/jspdf/dist/jspdf.node.min.js',
+  },
+  // marked 18 is ESM-only (no working CJS build), so let ts-jest transpile it
+  // by exempting it from the default node_modules transform-ignore.
+  transform: {
+    '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
+  },
+  transformIgnorePatterns: ['/node_modules/(?!marked/)'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
