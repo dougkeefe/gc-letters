@@ -50,8 +50,8 @@ test-app/*.tgz
 requirements/
 
 # Package manager lock files
-# For libraries: lock files should not be committed
-# Consumers will resolve dependencies based on package.json semver ranges
-package-lock.json
+# package-lock.json is committed for reproducible, pinned installs (supply-chain hygiene).
+# npm never includes it in the published tarball, so consumers still resolve
+# dependencies from package.json semver ranges.
 yarn.lock
 pnpm-lock.yaml

@@ -9,15 +9,15 @@
     "preview": "vite preview",
     "test:package": "npm run test:package:build && npm run test:package:install",
     "test:package:build": "cd .. && npm pack",
-    "test:package:install": "npm install ../gc-letters-1.0.0.tgz && echo 'Package installed! Now run: npm run dev'"
+    "test:package:install": "npm install \"../gc-letters-$(node -p \"require('../package.json').version\").tgz\" && echo 'Package installed! Now run: npm run dev'"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.2.1",
     "canvas": "^3.2.0",
     "typescript": "^5.3.3",
